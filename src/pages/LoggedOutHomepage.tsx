@@ -1,15 +1,4 @@
 import svgPaths from "@/components/svg/svg-gmzksqch85";
-import actionsAdd from "../assets/actions-add.svg";
-import actionsAudio from "../assets/actions-audio.svg";
-import aiBg from "../assets/ai-bg.svg";
-
-/** Figma LOHP hero texture + GenAI sparkle assets (MCP URLs; refresh from Figma if expired) */
-const LOHP_INPUT_BG_TEXTURE =
-  "https://www.figma.com/api/mcp/asset/a44c30b5-2a4e-4057-9104-7847be1659a9";
-const IMG_GEN_AI_SPARKLE_L =
-  "https://www.figma.com/api/mcp/asset/98b22db9-d94a-4929-8f13-3a3f4fc86762";
-const IMG_GEN_AI_SPARKLE_S =
-  "https://www.figma.com/api/mcp/asset/1bb6409e-be5b-4c21-a011-970c56624c09";
 import hero1 from "../assets/hero1.png";
 import hero2 from "../assets/hero2.png";
 import googleLogo from "../assets/google-logo.png";
@@ -138,472 +127,10 @@ const imgAvatarFreeAvatarSpace14 = "https://placehold.co/48x48";
 const imgAvatarFreeAvatarSpace15 = "https://placehold.co/48x48";
 const imgAvatarFreeAvatarSpace16 = "https://placehold.co/48x48";
 import { imgConduit, imgRectangle1, imgAdobeStock1258241691Copy22, imgUntitled1Copy34, imgUntitled1Copy36, imgRocketLaunch, imgAdobeStock6527325734, imgAdobeStock6527325736 } from "@/components/svg/svg-f7fus";
-import { type FormEvent, type ReactNode, forwardRef, useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
-import { useCourseraTypingAutocomplete } from "@/hooks/useCourseraTypingAutocomplete";
+import type { CSSProperties } from "react";
 import AppPageHeader from "@/components/layout/AppPageHeader";
 import MetaNav from "@/components/layout/MetaNav";
-import { ROUTES } from "@/routes";
-
-const promptPillHoverClass =
-  "transition-colors duration-150 hover:bg-[#f5f8ff] hover:border-[#c5d2ea]";
-
-const learnerFavoriteCardHoverClass =
-  "transition-shadow duration-150 hover:shadow-[0_0_24px_rgba(15,17,20,0.12)]";
-
-const autocompleteRowHoverClass =
-  "rounded-lg transition-colors duration-150 hover:bg-[#f5f8ff]";
-
-const ChatComposerTextField = forwardRef<
-  HTMLInputElement,
-  { value: string; onChange: (next: string) => void; onFocus?: () => void; ariaExpanded?: boolean }
->(function ChatComposerTextField({ value, onChange, onFocus, ariaExpanded }, ref) {
-  return (
-    <div className="flex w-full items-center px-1 py-0" data-name="Text Body">
-      <input
-        ref={ref}
-        type="text"
-        role="searchbox"
-        inputMode="search"
-        name="learn-query"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={onFocus}
-        placeholder="I want to learn..."
-        aria-label="I want to learn"
-        aria-expanded={ariaExpanded ?? false}
-        aria-controls={ariaExpanded ? "lohp-autocomplete-dropdown" : undefined}
-        autoComplete="off"
-        className="h-[32px] w-full min-w-0 flex-1 align-top border-0 bg-transparent p-0 font-['Source_Sans_3',sans-serif] text-[16px] leading-[24px] text-[#0f1114] outline-none placeholder:text-[#5b6780]"
-      />
-    </div>
-  );
-});
-
-function ToolbarAdd() {
-  return (
-    <button
-      type="button"
-      aria-label="Add"
-      className="flex shrink-0 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent p-2 transition-colors duration-150 hover:bg-[#f2f5fa]"
-      data-name="IconButton"
-    >
-      <div className="relative flex size-5 items-center justify-center" data-name="actions/Add">
-        <img alt="" src={actionsAdd} className="size-[14px] object-contain" aria-hidden />
-      </div>
-    </button>
-  );
-}
-
-function SearchButton({ disabled }: { disabled: boolean }) {
-  return (
-    <button
-      type="submit"
-      disabled={disabled}
-      className={`flex shrink-0 items-center justify-center rounded-lg border-0 p-2 transition-colors duration-150 ${
-        disabled ? "cursor-not-allowed bg-[#c1cad9]" : "cursor-pointer bg-[#0056d2] hover:bg-[#0048b0]"
-      }`}
-      data-name="IconButton"
-      aria-label={disabled ? "Search (enter a query)" : "Search"}
-    >
-      <div className="relative size-5 -rotate-90" data-name="direction/ArrowUp">
-        <div className="absolute inset-[21.46%_21.56%_21.51%_20%]">
-          <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 11.6875 11.4067">
-            <path d={svgPaths.p205bab00} fill="var(--fill-0, #FFFFFF)" />
-          </svg>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-function ChatSend({ canSubmit }: { canSubmit: boolean }) {
-  return (
-    <div className="flex shrink-0 items-center gap-1" data-name="Submit">
-      <button
-        type="button"
-        aria-label="Voice input"
-        className="flex shrink-0 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent p-2 transition-colors duration-150 hover:bg-[#f2f5fa]"
-        data-name="IconButton"
-      >
-        <div className="relative size-5 overflow-clip" data-name="media/Microphone">
-          <img alt="" src={actionsAudio} className="size-full object-contain" aria-hidden />
-        </div>
-      </button>
-      <SearchButton disabled={!canSubmit} />
-    </div>
-  );
-}
-
-function InputActions({ canSubmit }: { canSubmit: boolean }) {
-  return (
-    <div className="flex w-full items-end justify-between" data-name="Action container">
-      <div className="flex items-center" data-name="Toolbar">
-        <ToolbarAdd />
-      </div>
-      <ChatSend canSubmit={canSubmit} />
-    </div>
-  );
-}
-
-const LOHP_PROMPT_SUGGESTIONS = [
-  "Create a learning plan",
-  "Find a new career",
-  "Develop in-demand skills",
-  "Advance my career",
-  "What are the most in-demand skills?",
-  "Data Science vs. Data Analytics",
-  "Is an online degree right for me?",
-  "Learn new coding skills",
-  "Leverage Generative AI in my role",
-  "Which career’s right for me?",
-] as const;
-
-/** Matches Figma `_genAI_sparkle_brand_test` (L + S layers; default 11px). */
-function GenAiSparkleBrandIcon({ sizeClass = "size-[11px]" }: { sizeClass?: string }) {
-  return (
-    <div className={`relative shrink-0 ${sizeClass}`} data-name="_genAI_sparkle_brand_test" aria-hidden>
-      <div className="absolute inset-[8.33%_8.33%_0_0]" data-name="L">
-        <img alt="" className="block size-full max-w-none" src={IMG_GEN_AI_SPARKLE_L} />
-      </div>
-      <div className="absolute inset-[0_0_66.67%_66.67%]" data-name="S">
-        <img alt="" className="block size-full max-w-none" src={IMG_GEN_AI_SPARKLE_S} />
-      </div>
-    </div>
-  );
-}
-
-function Prompts({ onSelect }: { onSelect: (label: string) => void }) {
-  return (
-    <div
-      className="content-stretch relative flex w-full max-w-full shrink-0 flex-wrap content-center items-center justify-center gap-[6px]"
-      data-name="Prompts"
-    >
-      {LOHP_PROMPT_SUGGESTIONS.map((label) => (
-        <PromptSuggestionChip key={label} label={label} onSelect={onSelect} />
-      ))}
-    </div>
-  );
-}
-
-function PromptSuggestionChip({ label, onSelect }: { label: string; onSelect: (label: string) => void }) {
-  return (
-    <button
-      type="button"
-      className={`content-stretch flex shrink-0 cursor-pointer items-center justify-center gap-[4px] rounded-lg border border-solid border-[#dae1ed] bg-[var(--cds-color-neutral-background-primary,white)] px-[12px] py-[6px] text-left font-inherit ${promptPillHoverClass}`}
-      data-name="Suggestions"
-      onClick={() => onSelect(label)}
-    >
-      <GenAiSparkleBrandIcon />
-      <span className="font-['Source_Sans_3',sans-serif] text-[14px] font-normal leading-[20px] text-[#0f1114] whitespace-nowrap">
-        {label}
-      </span>
-    </button>
-  );
-}
-
-function NavigationSearchIcon() {
-  return (
-    <svg className="size-5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden>
-      <circle cx="8.5" cy="8.5" r="5" stroke="#0f1114" strokeWidth="1.5" />
-      <path d="M12.5 12.5L17 17" stroke="#0f1114" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-const LEARNER_FAVORITE_CARDS = [
-  {
-    title: "Google AI Essentials",
-    partner: "Google",
-    meta: "Beginner · Specialization",
-    image: hero1,
-  },
-  {
-    title: "Google Data Analytics",
-    partner: "Google",
-    meta: "Beginner · Professional Certificate",
-    image: hero2,
-  },
-  {
-    title: "Lesson | Small Talk & Conversational Vocabulary",
-    partner: "Google",
-    meta: "Beginner · Course",
-    image: spotlight11,
-  },
-  {
-    title: "Learn English: Beginning Grammar",
-    partner: "Google",
-    meta: "Beginner · Specialization",
-    image: spotlight12,
-  },
-] as const;
-
-/** CDS Avatar org-style (Figma 2320:48885): 24px tile, inset logo, neutral border — matches SERP product card partner row. */
-function PartnerLogoAvatar({ src }: { src: string }) {
-  return (
-    <div
-      className="relative flex size-6 shrink-0 flex-col items-center justify-center overflow-hidden rounded-[2px] bg-white p-[2px]"
-      data-name="Avatar"
-    >
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-[inherit] border-[0.891px] border-solid border-[#dae1ed]"
-      />
-      <img alt="" className="relative size-[14px] object-contain" src={src} />
-    </div>
-  );
-}
-
-function IdleAutocompletePanel({ onPick }: { onPick: (q: string) => void }) {
-  return (
-    <div className="flex w-full min-w-0 flex-col gap-6" data-name="Dropdown">
-      <div className="flex w-full min-w-0 flex-col gap-3" data-name="Trending">
-        <p className="w-full font-['Source_Sans_3',sans-serif] text-[16px] font-semibold leading-[20px] tracking-[-0.048px] text-[#0f1114]">
-          Trending on Coursera
-        </p>
-        <div className="flex w-full flex-wrap content-start items-start gap-[6px]" data-name="Prompts">
-          {LOHP_PROMPT_SUGGESTIONS.map((label) => (
-            <button
-              key={label}
-              type="button"
-              className={`content-stretch flex shrink-0 cursor-pointer items-center justify-center gap-[4px] rounded-lg border border-solid border-[#dae1ed] bg-white px-[12px] py-[6px] text-left font-inherit ${promptPillHoverClass}`}
-              data-name="Suggestions"
-              onClick={() => onPick(label)}
-            >
-              <GenAiSparkleBrandIcon />
-              <span className="font-['Source_Sans_3',sans-serif] text-[14px] font-normal leading-[20px] text-[#0f1114] whitespace-nowrap">
-                {label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="flex w-full min-w-0 flex-col gap-3 overflow-visible" data-name="Recs">
-        <p className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[16px] font-semibold leading-[20px] tracking-[-0.048px] text-[#0f1114]">
-          Start with these learner favorites
-        </p>
-        <div
-          className="-m-6 flex w-[min(1056px,calc(100vw-3rem))] min-w-[min(1056px,calc(100vw-3rem))] shrink-0 gap-2 overflow-x-auto overscroll-x-contain p-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          data-name="Cards"
-        >
-          {LEARNER_FAVORITE_CARDS.map((card) => (
-            <button
-              key={card.title}
-              type="button"
-              className={`flex w-[246px] shrink-0 flex-col gap-2 rounded-2xl border border-solid border-[#dae1ed] bg-white p-2 text-left font-inherit ${learnerFavoriteCardHoverClass}`}
-              data-name="Card"
-              onClick={() => onPick(card.title)}
-            >
-              <div className="relative h-[131px] w-full overflow-hidden rounded-lg">
-                <img alt="" className="size-full object-cover" src={card.image} />
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-1">
-                  <PartnerLogoAvatar src={googleLogo} />
-                  <span className="font-['Source_Sans_3',sans-serif] text-[14px] font-normal leading-[20px] text-[#5b6780]">
-                    {card.partner}
-                  </span>
-                </div>
-                <p className="font-['Source_Sans_3',sans-serif] text-[16px] font-semibold leading-[20px] tracking-[-0.048px] text-[#0f1114]">
-                  {card.title}
-                </p>
-                <p className="font-['Source_Sans_3',sans-serif] text-[12px] font-normal leading-[20px] text-[#5b6780]">{card.meta}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TypingAutocompletePanel({ query, onPick }: { query: string; onPick: (q: string) => void }) {
-  const { data } = useCourseraTypingAutocomplete(query);
-  const q = query.trim();
-  if (!data || !q) return null;
-
-  const { topCourse, topCourseImage, aiRows, searchRows } = data;
-
-  return (
-    <div className="flex w-full flex-col gap-[18px]" data-name="Typing dropdown">
-      <button
-        type="button"
-        className={`flex w-full cursor-pointer items-center gap-[6px] rounded-lg text-left font-inherit ${autocompleteRowHoverClass}`}
-        onClick={() => onPick(topCourse.title)}
-      >
-        <div className="size-[34px] shrink-0 overflow-hidden rounded">
-          <img alt="" className="size-full object-cover" src={topCourseImage} />
-        </div>
-        <div className="flex min-w-0 flex-col leading-[20px]">
-          <span className="font-['Source_Sans_3',sans-serif] text-[16px] font-semibold tracking-[-0.048px] text-[#0f1114]">
-            {topCourse.title}
-          </span>
-          <span className="font-['Source_Sans_3',sans-serif] text-[14px] font-normal text-[#5b6780]">
-            {topCourse.partner} • {topCourse.productType}
-          </span>
-        </div>
-      </button>
-      <div className="h-px w-full bg-[#dae1ed]" aria-hidden />
-      <div className="flex flex-col gap-3">
-        {aiRows.map((row, i) => (
-          <button
-            key={`ai-${i}`}
-            type="button"
-            className={`flex w-full cursor-pointer items-start gap-[7px] px-[3px] py-1 text-left font-inherit ${autocompleteRowHoverClass}`}
-            onClick={() => onPick(row.submit)}
-          >
-            <span className="mt-0.5 shrink-0">
-              <GenAiSparkleBrandIcon sizeClass="size-[14px]" />
-            </span>
-            <span className="font-['Source_Sans_3',sans-serif] text-[16px] font-normal leading-[20px] tracking-[-0.048px] text-[#0f1114]">
-              {row.type === "parts" ? (
-                <>
-                  {row.prefix}
-                  <span className="font-semibold">{row.bold}</span>
-                  {row.suffix}
-                </>
-              ) : (
-                row.text
-              )}
-            </span>
-          </button>
-        ))}
-        {searchRows.map((row, i) => (
-          <button
-            key={`search-${i}`}
-            type="button"
-            className={`flex min-h-[28px] w-full cursor-pointer items-center gap-1 px-[3px] text-left font-inherit ${autocompleteRowHoverClass}`}
-            onClick={() => onPick(row.submit)}
-          >
-            <NavigationSearchIcon />
-            <span className="font-['Source_Sans_3',sans-serif] text-[16px] font-semibold leading-[20px] tracking-[-0.048px] text-[#0f1114]">
-              {row.label}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function InputAndPrompts() {
-  const [query, setQuery] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const composerContainerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-
-  const goSearch = useCallback(
-    (q: string) => {
-      const trimmed = q.trim();
-      if (!trimmed) return;
-      navigate({ pathname: ROUTES.search, search: `?q=${encodeURIComponent(trimmed)}` });
-    },
-    [navigate],
-  );
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    goSearch(query);
-  };
-
-  const pickFromDropdown = useCallback(
-    (q: string) => {
-      setDropdownOpen(false);
-      goSearch(q);
-    },
-    [goSearch],
-  );
-
-  useEffect(() => {
-    if (!dropdownOpen) return;
-    const onPointerDown = (e: PointerEvent) => {
-      const root = composerContainerRef.current;
-      if (root && !root.contains(e.target as Node)) setDropdownOpen(false);
-    };
-    document.addEventListener("pointerdown", onPointerDown, true);
-    return () => document.removeEventListener("pointerdown", onPointerDown, true);
-  }, [dropdownOpen]);
-
-  return (
-    <div className="content-stretch relative flex w-full shrink-0 flex-col items-center gap-4 pb-2 pt-10" data-name="Input and Prompts">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        {/* Blue / purple wash (Figma “Blue Purple Gradient”) */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(90deg, rgb(255, 255, 255) 0%, rgba(53, 135, 252, 0.1) 33.173%, rgba(164, 154, 255, 0.05) 66.827%, rgb(255, 255, 255) 100%)",
-          }}
-        />
-        {/* Soft vertical glow so the center reads lighter / more airy */}
-        <div
-          className="absolute inset-0 opacity-90"
-          style={{
-            backgroundImage:
-              "radial-gradient(ellipse 85% 70% at 50% -5%, rgba(53, 135, 252, 0.08) 0%, transparent 52%), radial-gradient(ellipse 60% 45% at 50% 100%, rgba(164, 154, 255, 0.06) 0%, transparent 50%)",
-          }}
-        />
-        {/* Texture from Figma frame; local SVG fallback if remote asset fails */}
-        <img
-          alt=""
-          className="absolute inset-0 size-full max-w-none object-cover"
-          src={LOHP_INPUT_BG_TEXTURE}
-          onError={(e) => {
-            const el = e.currentTarget;
-            if (!el.dataset.fallbackApplied) {
-              el.dataset.fallbackApplied = "true";
-              el.src = aiBg;
-            }
-          }}
-        />
-      </div>
-      <p className="relative min-w-full w-[min-content] shrink-0 whitespace-pre-wrap text-center font-['Source_Sans_3',sans-serif] text-[24px] font-semibold leading-[28px] tracking-[-0.12px] text-[#0f1114]">
-        {`Build your path to in-demand `}
-        <br aria-hidden="true" />
-        skills and careers
-      </p>
-      <div className="relative flex w-full min-w-0 max-w-[1110px] flex-col items-center gap-6 px-4 sm:px-0">
-        <div ref={composerContainerRef} className="relative w-full min-w-0 max-w-[746px]">
-          <div
-            className="flex flex-col gap-1 rounded-lg border border-transparent p-2"
-            style={{
-              backgroundImage:
-                "linear-gradient(#ffffff, #ffffff), linear-gradient(to bottom right, #3587FC, #5547EA)",
-              backgroundOrigin: "border-box",
-              backgroundClip: "padding-box, border-box",
-            }}
-            data-name="ChatMessageComposer"
-          >
-            <form className="flex w-full flex-col gap-1" onSubmit={onSubmit} data-name="LOHP Chat Input">
-              <ChatComposerTextField
-                value={query}
-                onChange={setQuery}
-                onFocus={() => setDropdownOpen(true)}
-                ariaExpanded={dropdownOpen}
-              />
-              <InputActions canSubmit={query.trim().length > 0} />
-            </form>
-          </div>
-          {dropdownOpen ? (
-            <div
-              id="lohp-autocomplete-dropdown"
-              className="absolute left-1/2 top-full z-50 mt-2 w-[min(1056px,calc(100vw-3rem))] min-w-0 -translate-x-1/2 rounded-[24px] border border-[#e8edf4] bg-white p-6 shadow-xl"
-              data-name="LOHP Autocomplete"
-              aria-label="Search suggestions"
-            >
-              {query.trim().length > 0 ? (
-                <TypingAutocompletePanel query={query} onPick={pickFromDropdown} />
-              ) : (
-                <IdleAutocompletePanel onPick={pickFromDropdown} />
-              )}
-            </div>
-          ) : null}
-        </div>
-        <Prompts onSelect={goSearch} />
-      </div>
-    </div>
-  );
-}
+import { LohpInputSection } from "@/components/home/LohpInputSection";
 
 function Frame33() {
   return (
@@ -676,7 +203,7 @@ function Group26() {
 function Image() {
   return (
     <div className="absolute h-[304px] left-[332px] overflow-clip top-0 w-[330px]" data-name="Image">
-      <div className="absolute flex items-center justify-center left-[-170.22px] size-[718.775px] top-[-238px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[-170.22px] size-[718.775px] top-[-238px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[-55.47deg]">
           <div className="relative size-[516.864px]" data-name="Conduit">
             <div className="absolute inset-[7.39%_31.34%_7.39%_31.39%]" data-name="Vector">
@@ -693,7 +220,7 @@ function Image() {
           </div>
         </div>
       </div>
-      <div className="absolute flex items-center justify-center left-[59.21px] size-[304.374px] top-[-81.84px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[59.21px] size-[304.374px] top-[-81.84px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[110.98deg]">
           <div className="relative size-[235.627px]" data-name="Conduit">
             <div className="absolute inset-[7.39%_30.35%_7.39%_30.63%]" data-name="Vector">
@@ -772,7 +299,7 @@ function Group21() {
           </svg>
         </div>
       </div>
-      <div className="absolute flex h-0 items-center justify-center left-[41.1px] mix-blend-multiply top-[117.02px] w-[232.392px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-0 items-center justify-center left-[41.1px] mix-blend-multiply top-[117.02px] w-[232.392px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-rotate-90 flex-none">
           <div className="h-[232.392px] opacity-30 relative w-0">
             <div className="absolute inset-[0_-0.25px]">
@@ -785,7 +312,7 @@ function Group21() {
           </div>
         </div>
       </div>
-      <div className="absolute flex h-0 items-center justify-center left-[41.1px] mix-blend-multiply top-[195.98px] w-[232.392px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-0 items-center justify-center left-[41.1px] mix-blend-multiply top-[195.98px] w-[232.392px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-rotate-90 flex-none">
           <div className="h-[232.392px] opacity-30 relative w-0">
             <div className="absolute inset-[0_-0.25px]">
@@ -840,7 +367,7 @@ function Group22() {
 function Image1() {
   return (
     <div className="absolute h-[304px] left-[332px] overflow-clip top-px w-[330px]" data-name="Image">
-      <div className="absolute flex items-center justify-center left-[-169.79px] size-[718.185px] top-[-166px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[-169.79px] size-[718.185px] top-[-166px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[-8.21deg]">
           <div className="relative size-[634.104px]" data-name="Conduit">
             <div className="absolute inset-[7.39%_25.84%_7.39%_25.71%]" data-name="Vector">
@@ -851,7 +378,7 @@ function Image1() {
           </div>
         </div>
       </div>
-      <div className="absolute flex items-center justify-center left-[-195.36px] size-[749.352px] top-[-160.31px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[-195.36px] size-[749.352px] top-[-160.31px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[-11.68deg]">
           <div className="relative size-[634.104px]" data-name="Conduit">
             <div className="absolute inset-[7.39%_25.84%_7.39%_25.71%]" data-name="Vector">
@@ -904,7 +431,7 @@ function Frame43() {
 function Group13() {
   return (
     <div className="absolute contents left-[-57.59px] top-[-33.49px]">
-      <div className="absolute flex h-[412.373px] items-center justify-center left-[-47.82px] top-[-5.85px] w-[443.298px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "0" } as React.CSSProperties}>
+      <div className="absolute flex h-[412.373px] items-center justify-center left-[-47.82px] top-[-5.85px] w-[443.298px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "0" } as CSSProperties}>
         <div className="flex-none rotate-150">
           <div className="h-[270.953px] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[-9.772px_-27.636px] mask-size-[465.506px_465.505px] w-[355.442px]" style={{ backgroundImage: "linear-gradient(-82.9075deg, rgb(166, 120, 245) 17.909%, rgb(53, 135, 252) 54.352%)", maskImage: `url('${imgRectangle1}')` }} />
         </div>
@@ -1001,7 +528,7 @@ function Group14() {
 function Frame40() {
   return (
     <div className="absolute h-[304px] left-[332px] overflow-clip top-px w-[330px]">
-      <div className="absolute flex items-center justify-center left-[-186.58px] size-[664.771px] top-[-136.43px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[-186.58px] size-[664.771px] top-[-136.43px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[19.27deg]">
           <div className="relative size-[521.797px]" data-name="Conduit">
             <div className="absolute inset-[7.39%_30.45%_7.39%_30.54%]" data-name="Vector">
@@ -1070,7 +597,7 @@ function Frame34() {
 function Group() {
   return (
     <div className="absolute contents left-[-78.5px] size-[516.477px] top-[-28.86px]">
-      <div className="absolute flex items-center justify-center left-[-65.97px] size-[491.41px] top-[-16.33px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[-65.97px] size-[491.41px] top-[-16.33px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[111.31deg]">
           <div className="relative size-[379.441px]" data-name="Conduit">
             <div className="absolute inset-[7.39%_25.84%_7.39%_25.71%]" data-name="Vector">
@@ -1239,7 +766,7 @@ function Group11() {
 function Group7() {
   return (
     <div className="absolute contents h-[83.48px] left-[47.57px] top-[117.03px] w-[81.997px]">
-      <div className="absolute flex h-[67.008px] items-center justify-center left-[57.03px] top-[125.27px] w-[63.081px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[67.008px] items-center justify-center left-[57.03px] top-[125.27px] w-[63.081px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="flex-none rotate-[-21.39deg]">
           <div className="h-[53.66px] relative w-[46.726px]" data-name="Untitled-1 copy 2 4">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1257,7 +784,7 @@ function Bc4527CourseraOriginalsContentCreatorCourseCard() {
     <div className="absolute left-[302px] overflow-clip size-[333px] top-[-28px]" data-name="BC-4527_Coursera Originals Content Creator_CourseCard">
       <Group />
       <Group8 />
-      <div className="absolute flex h-[356.704px] items-center justify-center left-[-52.2px] top-[24.93px] w-[473.195px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[356.704px] items-center justify-center left-[-52.2px] top-[24.93px] w-[473.195px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="flex-none rotate-[9.91deg]">
           <div className="h-[286.973px] relative w-[430.244px]" data-name="AdobeStock_445655998_Preview 1">
             <img alt="" className="absolute inset-0 max-w-none object-cover pointer-events-none size-full" src={imgAdobeStock445655998Preview1} />
@@ -1267,7 +794,7 @@ function Bc4527CourseraOriginalsContentCreatorCourseCard() {
       <Group12 />
       <Group11 />
       <Group7 />
-      <div className="absolute flex h-[22.493px] items-center justify-center left-[51.89px] top-[204.63px] w-[42.525px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[22.493px] items-center justify-center left-[51.89px] top-[204.63px] w-[42.525px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="flex-none rotate-[1.89deg]">
           <div className="h-[21.123px] relative w-[41.85px]" data-name="Untitled-1 copy 3 5">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1277,7 +804,7 @@ function Bc4527CourseraOriginalsContentCreatorCourseCard() {
         </div>
       </div>
       <p className="absolute font-['Source_Sans_3',sans-serif] font-semibold h-[139.672px] leading-[1.1] left-[-112.31px] not-italic text-[#0f1114] text-[44.4px] top-[467.27px] tracking-[-0.444px] w-[298.062px]">{`image `}</p>
-      <div className="absolute flex h-[72.491px] items-center justify-center left-[268.97px] top-[105.9px] w-[72.35px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[72.491px] items-center justify-center left-[268.97px] top-[105.9px] w-[72.35px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="flex-none rotate-[42.41deg]">
           <div className="h-[52.364px] relative w-[50.158px]" data-name="heart copy 2">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1364,7 +891,7 @@ function LGeneralIconsAchievement() {
 function Image2() {
   return (
     <div className="absolute right-0 top-0 h-[110px] w-[150px] shrink-0" data-name="Image">
-      <div className="absolute flex h-[116.82px] items-center justify-center left-[12.76px] top-[-8px] w-[116.457px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[116.82px] items-center justify-center left-[12.76px] top-[-8px] w-[116.457px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="flex-none rotate-[-135.52deg]">
           <div className="h-[96.734px] relative w-[68.225px]" data-name="Vector">
             <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 68.2251 96.7336">
@@ -1373,7 +900,7 @@ function Image2() {
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[38.069px] items-center justify-center left-0 top-[31px] w-[95.57px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[38.069px] items-center justify-center left-0 top-[31px] w-[95.57px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[179.14deg]">
           <div className="h-[36.646px] relative w-[95.03px]" data-name="Untitled-1 copy 3 4">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1401,7 +928,7 @@ function Bucket() {
 function Group19() {
   return (
     <div className="absolute contents left-[25px] top-[37px]">
-      <div className="absolute flex h-[59.2px] items-center justify-center left-[5.95px] top-[22.22px] w-[56.391px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[59.2px] items-center justify-center left-[5.95px] top-[22.22px] w-[56.391px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[131.86deg]">
           <div className="h-[22.781px] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[19.051px_14.776px] mask-size-[41.451px_33.99px] relative w-[59.076px]" data-name="Untitled-1 copy 3 4" style={{ maskImage: `url('${imgUntitled1Copy34}')` }}>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1410,7 +937,7 @@ function Group19() {
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[59.2px] items-center justify-center left-[-3.19px] top-[13.79px] w-[56.391px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[59.2px] items-center justify-center left-[-3.19px] top-[13.79px] w-[56.391px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[131.86deg]">
           <div className="h-[22.781px] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[28.186px_23.212px] mask-size-[41.451px_33.99px] relative w-[59.076px]" data-name="Untitled-1 copy 3 5" style={{ maskImage: `url('${imgUntitled1Copy34}')` }}>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1442,7 +969,7 @@ function LEducationIconsGraduationCap() {
 function Image3() {
   return (
     <div className="absolute right-0 top-0 h-[110px] w-[150px] shrink-0" data-name="Image">
-      <div className="absolute flex h-[116.82px] items-center justify-center left-[13.76px] top-[-8px] w-[116.457px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[116.82px] items-center justify-center left-[13.76px] top-[-8px] w-[116.457px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="flex-none rotate-[-135.52deg]">
           <div className="h-[96.734px] relative w-[68.225px]" data-name="Vector">
             <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 68.2251 96.7336">
@@ -1471,7 +998,7 @@ function Bucket1() {
 function Group20() {
   return (
     <div className="absolute contents h-[63.958px] left-[16.03px] top-[22.77px] w-[66.74px]">
-      <div className="absolute flex h-[77.586px] items-center justify-center left-[15.84px] top-[21.55px] w-[39.788px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[77.586px] items-center justify-center left-[15.84px] top-[21.55px] w-[39.788px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[99.01deg]">
           <div className="h-[28.547px] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[0.192px_1.225px] mask-size-[66.74px_63.958px] relative w-[74.029px]" data-name="Untitled-1 copy 3 4" style={{ maskImage: `url('${imgUntitled1Copy36}')` }}>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1480,7 +1007,7 @@ function Group20() {
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[108.897px] items-center justify-center left-[-31px] top-[1.4px] w-[55.845px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[108.897px] items-center justify-center left-[-31px] top-[1.4px] w-[55.845px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[99.01deg]">
           <div className="h-[40.068px] mask-alpha mask-intersect mask-no-clip mask-no-repeat mask-position-[47.033px_21.371px] mask-size-[66.74px_63.958px] relative w-[103.905px]" data-name="Untitled-1 copy 3 5" style={{ maskImage: `url('${imgUntitled1Copy36}')` }}>
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1496,7 +1023,7 @@ function Group20() {
 function Image4() {
   return (
     <div className="absolute right-0 top-0 h-[110px] w-[150px] shrink-0" data-name="Image">
-      <div className="absolute flex h-[104.588px] items-center justify-center left-[6px] top-[6px] w-[113.646px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[104.588px] items-center justify-center left-[6px] top-[6px] w-[113.646px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="flex-none rotate-[121.5deg]">
           <div className="h-[93.065px] relative w-[65.638px]" data-name="Vector">
             <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 65.6376 93.0648">
@@ -5079,7 +4606,7 @@ function Overflow() {
 function Group18() {
   return (
     <div className="absolute contents left-[6.29px] top-[-12.2px]">
-      <div className="absolute flex items-center justify-center left-[6.29px] size-[309.632px] top-[-12.2px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[6.29px] size-[309.632px] top-[-12.2px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[47.59deg]">
           <div className="relative size-[219.167px]" data-name="Conduit p">
             <div className="absolute inset-[7.39%_7.32%_7.39%_7.24%]" data-name="Vector">
@@ -5096,7 +4623,7 @@ function Group18() {
           </div>
         </div>
       </div>
-      <div className="absolute flex items-center justify-center left-[13.72px] size-[233.857px] top-[62.16px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[13.72px] size-[233.857px] top-[62.16px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[-171.87deg]">
           <div className="relative size-[206.693px]" data-name="Conduit o">
             <div className="absolute inset-[7.39%_19.98%_7.39%_19.91%]" data-name="Vector">
@@ -5107,7 +4634,7 @@ function Group18() {
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[259.124px] items-center justify-center left-[27.29px] top-[30.99px] w-[259.123px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex h-[259.124px] items-center justify-center left-[27.29px] top-[30.99px] w-[259.123px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[-176.53deg]">
           <div className="relative size-[244.765px]" data-name="Conduit y">
             <div className="absolute inset-[7.39%_20%_7.39%_19.89%]" data-name="Vector">
@@ -5224,7 +4751,7 @@ function Frame5() {
 function Group23() {
   return (
     <div className="absolute contents left-[-11.02px] top-[-62.52px]">
-      <div className="absolute flex items-center justify-center left-[-11.02px] size-[350.863px] top-[-62.52px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[-11.02px] size-[350.863px] top-[-62.52px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="-scale-y-100 flex-none rotate-[-147.52deg]">
           <div className="relative size-[254.143px]" data-name="Conduit">
             <div className="absolute inset-[7.39%_20%_7.39%_19.89%]" data-name="Vector">
@@ -5242,7 +4769,7 @@ function Group23() {
 function Frame44() {
   return (
     <div className="h-[174px] overflow-clip relative shrink-0 w-[327px]">
-      <div className="absolute flex items-center justify-center left-[-190px] size-[680.506px] top-[-234.08px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[-190px] size-[680.506px] top-[-234.08px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="flex-none rotate-[-39.02deg]">
           <div className="relative size-[483.822px]" data-name="Conduit">
             <div className="absolute inset-[7.39%_31.34%_7.39%_31.39%]" data-name="Vector">
@@ -5253,7 +4780,7 @@ function Frame44() {
           </div>
         </div>
       </div>
-      <div className="absolute flex items-center justify-center left-[-131.69px] size-[619.2px] top-[-212.76px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as React.CSSProperties}>
+      <div className="absolute flex items-center justify-center left-[-131.69px] size-[619.2px] top-[-212.76px]" style={{ "--transform-inner-width": "1200", "--transform-inner-height": "19" } as CSSProperties}>
         <div className="flex-none rotate-[-43.04deg]">
           <div className="relative size-[438.096px]" data-name="Conduit">
             <div className="absolute inset-[7.39%_31.28%_7.39%_31.45%]" data-name="Vector">
@@ -5458,7 +4985,7 @@ function PageSections() {
   return (
     <div className="relative shrink-0 w-full" data-name="Page Sections">
       <div className="content-stretch flex flex-col gap-[40px] items-start pb-[40px] px-[46px] relative w-full">
-        <InputAndPrompts />
+        <LohpInputSection />
         <HeroCarousel />
         <Buckets />
         <Partners />
