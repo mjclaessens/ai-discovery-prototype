@@ -82,22 +82,39 @@ export function SerpCardInteractiveWrap({
   interactive,
   outerRadiusClass,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   children: ReactNode;
   selected: boolean;
   interactive: boolean;
   outerRadiusClass: string;
   selectionDisabled?: boolean;
+  /** Opens product details; checkbox uses stopPropagation so it won’t fire when selecting. */
+  onCardNavigate?: () => void;
 }) {
   if (!interactive) return <>{children}</>;
   const limitBlockUnselected = Boolean(selectionDisabled && !selected);
+  const showNav = Boolean(onCardNavigate);
   return (
     <div
+      role={showNav ? "link" : undefined}
+      tabIndex={showNav ? 0 : undefined}
+      onClick={showNav ? () => onCardNavigate?.() : undefined}
+      onKeyDown={
+        showNav
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onCardNavigate?.();
+              }
+            }
+          : undefined
+      }
       className={`group relative flex h-full min-h-0 w-full min-w-0 flex-col ${outerRadiusClass} ${
         selected
           ? "shadow-[0_6px_24px_rgba(0,86,210,0.16)] ring-2 ring-[#0056d2] ring-offset-0 transition-[box-shadow,ring] duration-200 ease-out"
           : "ring-1 ring-transparent shadow-none transition-[box-shadow,ring] duration-200 ease-out hover:shadow-[0_10px_32px_rgba(54,64,81,0.12)] hover:ring-[#dae1ed]"
-      } ${limitBlockUnselected ? "hover:cursor-not-allowed" : ""}`}
+      } ${limitBlockUnselected && !showNav ? "hover:cursor-not-allowed" : ""} ${showNav ? "cursor-pointer" : ""}`}
       data-selected={selected}
     >
       {children}

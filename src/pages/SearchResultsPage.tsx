@@ -21,12 +21,6 @@ import starweaverLogo from "../assets/starweaver.png";
 import loadingIcon from "../assets/loading.svg";
 import serp1 from "../assets/serp1.png";
 import serp2 from "../assets/serp2.png";
-import serp2_1 from "../assets/serp2-1.png";
-import serp2_2 from "../assets/serp2-2.png";
-import serp2_3 from "../assets/serp2-3.png";
-import serp2_4 from "../assets/serp2-4.png";
-import serp2_5 from "../assets/serp2-5.png";
-import serp2_6 from "../assets/serp2-6.png";
 import serp3 from "../assets/serp3.png";
 import serp4 from "../assets/serp4.png";
 import serp5 from "../assets/serp5.png";
@@ -40,7 +34,6 @@ import actionsClose from "../assets/actions-close.svg";
 import actionsCopy from "../assets/actions-copy.svg";
 import actionsMore from "../assets/actions-more.svg";
 import actionsReload from "../assets/actions-reload.svg";
-import actionsSettings from "../assets/actions-settings.svg";
 import actionsThumbsDown from "../assets/actions-thumbsdown.svg";
 import actionsThumbsUp from "../assets/actions-thumbsup.svg";
 import reloadIcon from "../assets/reload.svg";
@@ -56,6 +49,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BackLink } from "@/components/ui/BackLink";
 import { MoreVertical, Trash2 } from "lucide-react";
 import {
   MAX_SELECTED_COURSES,
@@ -64,8 +58,23 @@ import {
   SerpCardImageSlot,
   type SerpCardSelection,
 } from "@/components/search/SerpCardPrimitives";
+import { CHAT_PANEL_ASIDE_CLASS, ChatPanelHeader } from "@/components/chat/ChatPanelChrome";
 import { SerpFilterBar, SerpFilterBarSkeleton } from "@/components/search/SerpFilterBar";
 import { SerpResultsSkeleton } from "@/components/search/SerpResultsSkeleton";
+import {
+  PM_RESULT_CARDS,
+  type CompareCourseDetail,
+  type PmResultCardConfig,
+  type ResolvedSerpCourse,
+  type SerpResultsMode,
+  getSerpResultIds,
+  pickNextFromPool,
+  pickReplacementForSlot,
+  resolveCompareCourseDetail,
+  resolveSelectedCourses,
+  resolveSerpCourseId,
+  SERP_DEFAULT_RESULT_TITLES,
+} from "@/data/serpCourses";
 
 // Card thumbnails: serp1–9 match the SERP grid left-to-right, top-to-bottom (see ProductCard → Image*).
 const imgScreenshot20260128At105736Am3 = serp1;
@@ -217,11 +226,13 @@ function ProductCard({
   onToggleSelect,
   title,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   selected: boolean;
   onToggleSelect: () => void;
   title: string;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const selection: SerpCardSelection = {
     selected,
@@ -230,7 +241,13 @@ function ProductCard({
     ...(selectionDisabled ? { disabled: true } : {}),
   };
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive outerRadiusClass="rounded-[14.25px]" selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive
+      outerRadiusClass="rounded-[14.25px]"
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <SerpProductCardShell>
         <Card selection={selection} />
       </SerpProductCardShell>
@@ -373,11 +390,13 @@ function ProductCard1({
   onToggleSelect,
   title,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   selected: boolean;
   onToggleSelect: () => void;
   title: string;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const selection: SerpCardSelection = {
     selected,
@@ -386,7 +405,13 @@ function ProductCard1({
     ...(selectionDisabled ? { disabled: true } : {}),
   };
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive outerRadiusClass="rounded-[14.25px]" selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive
+      outerRadiusClass="rounded-[14.25px]"
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <SerpProductCardShell>
         <Card1 selection={selection} />
       </SerpProductCardShell>
@@ -529,11 +554,13 @@ function ProductCard2({
   onToggleSelect,
   title,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   selected: boolean;
   onToggleSelect: () => void;
   title: string;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const selection: SerpCardSelection = {
     selected,
@@ -542,7 +569,13 @@ function ProductCard2({
     ...(selectionDisabled ? { disabled: true } : {}),
   };
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive outerRadiusClass="rounded-[14.25px]" selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive
+      outerRadiusClass="rounded-[14.25px]"
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <SerpProductCardShell>
         <Card2 selection={selection} />
       </SerpProductCardShell>
@@ -685,11 +718,13 @@ function ProductCard3({
   onToggleSelect,
   title,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   selected: boolean;
   onToggleSelect: () => void;
   title: string;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const selection: SerpCardSelection = {
     selected,
@@ -698,7 +733,13 @@ function ProductCard3({
     ...(selectionDisabled ? { disabled: true } : {}),
   };
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive outerRadiusClass="rounded-[14.25px]" selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive
+      outerRadiusClass="rounded-[14.25px]"
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <SerpProductCardShell>
         <Card3 selection={selection} />
       </SerpProductCardShell>
@@ -841,11 +882,13 @@ function ProductCard4({
   onToggleSelect,
   title,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   selected: boolean;
   onToggleSelect: () => void;
   title: string;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const selection: SerpCardSelection = {
     selected,
@@ -854,7 +897,13 @@ function ProductCard4({
     ...(selectionDisabled ? { disabled: true } : {}),
   };
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive outerRadiusClass="rounded-[14.25px]" selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive
+      outerRadiusClass="rounded-[14.25px]"
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <SerpProductCardShell>
         <Card4 selection={selection} />
       </SerpProductCardShell>
@@ -999,11 +1048,13 @@ function ProductCard5({
   onToggleSelect,
   title,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   selected: boolean;
   onToggleSelect: () => void;
   title: string;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const selection: SerpCardSelection = {
     selected,
@@ -1012,7 +1063,13 @@ function ProductCard5({
     ...(selectionDisabled ? { disabled: true } : {}),
   };
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive outerRadiusClass="rounded-[14.25px]" selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive
+      outerRadiusClass="rounded-[14.25px]"
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <SerpProductCardShell>
         <Card5 selection={selection} />
       </SerpProductCardShell>
@@ -1195,11 +1252,13 @@ function ProductCard6({
   onToggleSelect,
   title,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   selected: boolean;
   onToggleSelect: () => void;
   title: string;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const selection: SerpCardSelection = {
     selected,
@@ -1208,7 +1267,13 @@ function ProductCard6({
     ...(selectionDisabled ? { disabled: true } : {}),
   };
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive outerRadiusClass="rounded-[14.25px]" selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive
+      outerRadiusClass="rounded-[14.25px]"
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <SerpProductCardShell>
         <Card6 selection={selection} />
       </SerpProductCardShell>
@@ -1351,11 +1416,13 @@ function ProductCard7({
   onToggleSelect,
   title,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   selected: boolean;
   onToggleSelect: () => void;
   title: string;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const selection: SerpCardSelection = {
     selected,
@@ -1364,7 +1431,13 @@ function ProductCard7({
     ...(selectionDisabled ? { disabled: true } : {}),
   };
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive outerRadiusClass="rounded-[14.25px]" selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive
+      outerRadiusClass="rounded-[14.25px]"
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <SerpProductCardShell>
         <Card7 selection={selection} />
       </SerpProductCardShell>
@@ -1507,11 +1580,13 @@ function ProductCard8({
   onToggleSelect,
   title,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   selected: boolean;
   onToggleSelect: () => void;
   title: string;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const selection: SerpCardSelection = {
     selected,
@@ -1520,7 +1595,13 @@ function ProductCard8({
     ...(selectionDisabled ? { disabled: true } : {}),
   };
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive outerRadiusClass="rounded-[14.25px]" selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive
+      outerRadiusClass="rounded-[14.25px]"
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <SerpProductCardShell>
         <Card8 selection={selection} />
       </SerpProductCardShell>
@@ -1564,89 +1645,6 @@ function Frame7Pm() {
     </div>
   );
 }
-
-type PmResultCardConfig = {
-  thumb: string;
-  logo?: string;
-  partnerInitial?: string;
-  partner: string;
-  title: string;
-  description?: string;
-  matchPercent?: number;
-  showAiSkillsTag?: boolean;
-  meta: string;
-  /** Figma 2109:67364: top row uses 8px pad + 14px radius; bottom row matches default SERP shell. */
-  shell: "featured" | "standard";
-};
-
-const PM_RESULT_CARDS: PmResultCardConfig[] = [
-  {
-    thumb: serp2_1,
-    logo: ibmLogo,
-    partner: "IBM",
-    title: "Generative AI for Product Managers",
-    matchPercent: 90,
-    showAiSkillsTag: true,
-    shell: "featured",
-    description:
-      "This is a strong fit for you as a product manager because it bridges technical understanding and practical application—exactly the gap PMs need to close right now.",
-    meta: "Beginner · Specialization · 1-3 months",
-  },
-  {
-    thumb: serp2_2,
-    logo: skillupLogo,
-    partner: "SkillUp",
-    title: "Product Management: Building AI-Powered Products",
-    matchPercent: 84,
-    showAiSkillsTag: true,
-    shell: "featured",
-    description:
-      "This is a good fit for you as a product manager because it focuses on practical understanding, not technical depth—exactly what PMs need in an AI-driven environment.",
-    meta: "Beginner · Course · 1-4 weeks",
-  },
-  {
-    thumb: serp2_3,
-    logo: skillupLogo,
-    partner: "SkillUp",
-    title: "Generative AI: Supercharge Your Product Management Career",
-    matchPercent: 82,
-    showAiSkillsTag: true,
-    shell: "featured",
-    description:
-      "This is a good fit for you as a product manager because it focuses on strategic leadership—which is where PMs create the most impact.",
-    meta: "Beginner · Course · 1-4 weeks",
-  },
-  {
-    thumb: serp2_4,
-    logo: starweaverLogo,
-    partner: "Starweaver",
-    title: "ChatGPT (and other AI) for Product Management & Innovation",
-    meta: "Beginner · Course · 1-4 weeks",
-    shell: "standard",
-    description:
-      "This is a good fit for you as a product manager because it focuses on practical ChatGPT and AI workflows for innovation—useful for shaping roadmap bets without deep ML expertise.",
-  },
-  {
-    thumb: serp2_5,
-    logo: simplilearnLogo,
-    partner: "Simplilearn",
-    title: "Generative AI in Product Development Training",
-    meta: "Beginner · Course · 1-4 weeks",
-    shell: "standard",
-    description:
-      "This is a good fit for you as a product manager because it ties generative AI to product development cycles—helpful if you own delivery tradeoffs and stakeholder alignment.",
-  },
-  {
-    thumb: serp2_6,
-    logo: courseraLogo,
-    partner: "Coursera",
-    title: "GenAI for Product Managers",
-    meta: "Beginner · Course · 1-4 weeks",
-    shell: "standard",
-    description:
-      "This is a good fit for you as a product manager because it offers a concise GenAI foundation you can pair with your domain context—ideal for time-boxed upskilling.",
-  },
-];
 
 function PmPartnerMark({ logo, partnerInitial, partner }: Pick<PmResultCardConfig, "logo" | "partnerInitial" | "partner">) {
   if (logo) {
@@ -1753,11 +1751,13 @@ function PmProductCard({
   selected = false,
   onToggleSelect,
   selectionDisabled = false,
+  onCardNavigate,
 }: {
   config: PmResultCardConfig;
   selected?: boolean;
   onToggleSelect?: () => void;
   selectionDisabled?: boolean;
+  onCardNavigate?: () => void;
 }) {
   const { thumb, shell, logo, partnerInitial, partner, title, description, matchPercent, showAiSkillsTag, meta } =
     config;
@@ -1769,7 +1769,13 @@ function PmProductCard({
       : null;
 
   return (
-    <SerpCardInteractiveWrap selected={selected} interactive={selectable} outerRadiusClass={outerRadius} selectionDisabled={selectionDisabled}>
+    <SerpCardInteractiveWrap
+      selected={selected}
+      interactive={selectable}
+      outerRadiusClass={outerRadius}
+      selectionDisabled={selectionDisabled}
+      onCardNavigate={onCardNavigate}
+    >
       <PmCardShell shell={shell}>
         <div className="content-stretch flex h-full min-h-0 w-full flex-col items-start relative rounded-[14.25px]" data-name="Card">
           <SerpCardImageSlot selection={selection}>
@@ -1824,187 +1830,7 @@ function PmProductCard({
   );
 }
 
-/** Titles for default SERP ProductCard grid (ProductCard → ProductCard8), for selection aria-labels. */
-const SERP_DEFAULT_RESULT_TITLES = [
-  "Generative AI: Introduction and Applications",
-  "Generative AI for Everyone",
-  "Generative AI Leader",
-  "IBM Generative AI Engineering",
-  "Introduction to Generative AI",
-  "Generative AI Engineering with LLMs",
-  "Generative AI for Executives",
-  "Generative AI for Software Developers",
-  "Generative AI for Content Creation",
-] as const;
-
-/** Thumbnails aligned with `SERP_DEFAULT_RESULT_TITLES` / ProductCard0–8 (`serp1`–`serp9`). */
-const SERP_DEFAULT_THUMBS = [serp1, serp2, serp3, serp4, serp5, serp6, serp7, serp8, serp9] as const;
-
-/** Partner labels from default grid headers (ProductCard0–8). */
-const SERP_DEFAULT_PARTNERS = [
-  "IBM",
-  "DeepLearning.AI",
-  "Google Cloud",
-  "IBM",
-  "Google CLoud",
-  "IBM",
-  "IBM",
-  "IBM",
-  "Adobe",
-] as const;
-
-const SERP_DEFAULT_META = "Beginner · Course · 1-4 weeks";
-const SERP_DEFAULT_RATING = "4.9 · 3.4k reviews";
-
-/** Figma 2219:125198 — compare stripe rows (prototype copy shared across columns). */
-const COMPARISON_SKILLS_LINE =
-  "Business communication, Human Resources, Interviewing Skills, Verbal Communication";
-const COMPARISON_TOOLS_LINE = "ChatGPT, Claude, Gemini, Perplexity AI";
-const COMPARISON_HANDS_ON_LINE = "3 coding assignments, 1 role play";
-const COMPARISON_SUMMARY_LINE =
-  "Learners say the course makes it easy to build practical generative AI skills through hands-on exercises. They find they can quickly apply what they learn to real-world tasks.";
-
-type SerpResultsMode = "default" | "pm_updating" | "pm_results";
-
 type ComparisonMenuAction = "more" | "explore" | "remove";
-
-function getSerpResultIds(mode: SerpResultsMode): string[] {
-  if (mode === "default") {
-    return Array.from({ length: SERP_DEFAULT_RESULT_TITLES.length }, (_, i) => `default:${i}`);
-  }
-  if (mode === "pm_results") {
-    return Array.from({ length: PM_RESULT_CARDS.length }, (_, i) => `pm:${i}`);
-  }
-  return [];
-}
-
-function pickNextFromPool(current: string[], mode: SerpResultsMode): string | undefined {
-  return getSerpResultIds(mode).find((id) => !current.includes(id));
-}
-
-function pickReplacementForSlot(
-  current: string[],
-  slotIndex: number,
-  mode: SerpResultsMode,
-): string | undefined {
-  const others = current.filter((_, i) => i !== slotIndex);
-  return getSerpResultIds(mode).find((id) => !others.includes(id) && id !== current[slotIndex]);
-}
-
-type ResolvedSerpCourse = {
-  id: string;
-  title: string;
-  partner: string;
-  thumb: string;
-  meta: string;
-  rating: string;
-};
-
-type CompareCourseDetail = ResolvedSerpCourse & {
-  logo?: string;
-  partnerInitial?: string;
-  description?: string;
-  matchPercent?: number;
-  showAiSkillsTag?: boolean;
-  recentlyUpdated?: boolean;
-  skillsLine: string;
-  toolsLine: string;
-  handsOnLine: string;
-  summaryLine: string;
-};
-
-/** Stable IDs: `default:0`…`default:8`, `pm:0`…`pm:5`. */
-function resolveSerpCourseId(id: string): ResolvedSerpCourse | null {
-  if (id.startsWith("default:")) {
-    const idx = Number(id.slice("default:".length));
-    if (!Number.isInteger(idx) || idx < 0 || idx >= SERP_DEFAULT_RESULT_TITLES.length) return null;
-    return {
-      id,
-      title: SERP_DEFAULT_RESULT_TITLES[idx],
-      partner: SERP_DEFAULT_PARTNERS[idx],
-      thumb: SERP_DEFAULT_THUMBS[idx],
-      meta: SERP_DEFAULT_META,
-      rating: SERP_DEFAULT_RATING,
-    };
-  }
-  if (id.startsWith("pm:")) {
-    const idx = Number(id.slice("pm:".length));
-    if (!Number.isInteger(idx) || idx < 0 || idx >= PM_RESULT_CARDS.length) return null;
-    const c = PM_RESULT_CARDS[idx];
-    return {
-      id,
-      title: c.title,
-      partner: c.partner,
-      thumb: c.thumb,
-      meta: c.meta,
-      rating: SERP_DEFAULT_RATING,
-    };
-  }
-  return null;
-}
-
-function resolveSelectedCourses(ids: Set<string>): ResolvedSerpCourse[] {
-  return Array.from(ids)
-    .map((courseId) => resolveSerpCourseId(courseId))
-    .filter((c): c is ResolvedSerpCourse => c != null);
-}
-
-function partnerLogoForDefaultSerp(partner: string): string | undefined {
-  const p = partner.toLowerCase();
-  if (p.includes("ibm")) return ibmLogo;
-  if (p.includes("google")) return googleLogo;
-  if (p.includes("deeplearning")) return deeplearningLogo;
-  if (p.includes("adobe")) return adobeLogo;
-  if (p.includes("coursera")) return courseraLogo;
-  if (p.includes("simplilearn")) return simplilearnLogo;
-  if (p.includes("starweaver")) return starweaverLogo;
-  if (p.includes("skillup")) return skillupLogo;
-  return undefined;
-}
-
-function resolveCompareCourseDetail(id: string): CompareCourseDetail | null {
-  const base = resolveSerpCourseId(id);
-  if (!base) return null;
-  const staticRows = {
-    skillsLine: COMPARISON_SKILLS_LINE,
-    toolsLine: COMPARISON_TOOLS_LINE,
-    handsOnLine: COMPARISON_HANDS_ON_LINE,
-    summaryLine: COMPARISON_SUMMARY_LINE,
-  };
-  if (id.startsWith("pm:")) {
-    const idx = Number(id.slice("pm:".length));
-    if (!Number.isInteger(idx) || idx < 0 || idx >= PM_RESULT_CARDS.length) return null;
-    const c = PM_RESULT_CARDS[idx];
-    /** SERP cards without a % match still get a lower comparison % so columns align. */
-    const comparisonMatchFallback =
-      c.matchPercent ??
-      (idx >= 3 && idx <= 5 ? ([68, 65, 62] as const)[idx - 3] : 58);
-    return {
-      ...base,
-      logo: c.logo,
-      partnerInitial: c.partnerInitial,
-      description: c.description,
-      matchPercent: comparisonMatchFallback,
-      showAiSkillsTag: c.showAiSkillsTag,
-      recentlyUpdated: idx === 0,
-      ...staticRows,
-    };
-  }
-  if (id.startsWith("default:")) {
-    const idx = Number(id.slice("default:".length));
-    return {
-      ...base,
-      logo: partnerLogoForDefaultSerp(base.partner),
-      description:
-        "This course aligns with your learning priorities. Review the skills and format below to decide if it fits your next step.",
-      matchPercent: 72 + (idx % 18),
-      showAiSkillsTag: true,
-      recentlyUpdated: false,
-      ...staticRows,
-    };
-  }
-  return null;
-}
 
 /**
  * Figma 2163:34106 — selected course chips above the composer.
@@ -2100,8 +1926,8 @@ function CompareSelectedCoursesPill({
   );
 }
 
-/** Figma 2261:100753 — comparison card skeleton (match gradient + striped rows). */
-function CompareCourseColumnSkeleton() {
+/** Figma 1971:51712 — comparison card skeleton (loading state). */
+function CompareCourseColumnSkeleton({ columnCount = 3 }: { columnCount?: number }) {
   const pulse = "animate-pulse";
   return (
     <div
@@ -2109,70 +1935,83 @@ function CompareCourseColumnSkeleton() {
       data-name="Product cards - compare skeleton"
       aria-hidden
     >
-      <div className="flex w-full min-w-0 flex-col items-start overflow-clip rounded-[14.25px] bg-[#f0f6ff] p-1.5">
-        <div className="flex w-full min-w-0 flex-col items-start overflow-clip rounded-[8px]">
-          <div className="relative isolate aspect-[304/171] w-full shrink-0 overflow-clip rounded-[8px]">
+      <div className="flex w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#dae1ed] bg-white">
+        <div className="flex flex-col p-2">
+          <div className="relative aspect-[380/212] w-full shrink-0 overflow-hidden rounded-lg">
             <div
-              className={`absolute inset-0 rounded-[8px] bg-gradient-to-r from-[#f2f5fa] via-[#e8f1ff] via-[64.177%] to-[#f2f5fa] ${pulse}`}
+              className={`absolute inset-0 rounded-lg bg-gradient-to-r from-[#f2f5fa] via-[#e8f1ff] via-[64.177%] to-[#f2f5fa] ${pulse}`}
               data-name="Thumbnail skeleton"
             />
           </div>
-          <div className="relative flex w-full min-w-0 flex-col rounded-[8px]" data-name="Content">
-            <div className="flex w-full min-w-0 flex-col gap-0 bg-[#f0f6ff] px-2 py-1.5" data-name="Header">
-              <div className="flex max-w-[239px] flex-col gap-0">
-                <div className={`h-3 w-full shrink-0 rounded bg-[#e8eef7] ${pulse}`} />
-                <div className={`h-3 w-full shrink-0 rounded bg-[#e8eef7] ${pulse}`} />
-                <div className={`h-3 w-[153px] max-w-full shrink-0 rounded bg-[#e8eef7] ${pulse}`} />
+        </div>
+        <div className="flex w-full min-w-0 flex-col" data-name="Content">
+          <div className="flex flex-col gap-3.5 px-3 pb-[19px] pt-3" data-name="Header">
+            <div className="flex max-w-[239px] flex-col gap-1">
+              <div className={`h-3 w-[123px] shrink-0 rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-[18px] w-full shrink-0 rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-[18px] w-[210px] max-w-full shrink-0 rounded bg-[#e8eef7] ${pulse}`} />
+            </div>
+            <div className="flex flex-wrap gap-1">
+              <div
+                className="flex h-[22px] w-[78px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#6923de] to-[#3587fc]"
+                aria-hidden
+              />
+              <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full border-[1.19px] border-[#dae1ed] bg-white px-2 py-1">
+                <div className={`h-2 w-[52px] rounded bg-[#e8eef7] ${pulse}`} />
+              </div>
+              <div className="flex h-[22px] w-[107px] shrink-0 items-center justify-center rounded-full border-[1.19px] border-[#dae1ed] bg-white px-2 py-1">
+                <div className={`h-2 w-[91px] rounded bg-[#e8eef7] ${pulse}`} />
               </div>
             </div>
-
-            <div className="flex w-full min-w-0 flex-col gap-0 bg-[#e3eeff] px-2 py-2">
-              <div className="flex min-w-0 flex-wrap content-start items-start gap-0.5">
-                <div
-                  className="h-[22px] w-[78px] shrink-0 rounded-full bg-gradient-to-r from-[#d65d00] to-[#9c1a84]"
-                  aria-hidden
-                />
-                <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full border border-[#dae1ed] bg-white px-2 py-1">
-                  <div className={`h-2 w-[52px] rounded bg-[#e8eef7] ${pulse}`} />
-                </div>
-                <div className="flex h-[22px] w-[107px] shrink-0 items-center justify-center rounded-full border border-[#dae1ed] bg-white px-2 py-1">
-                  <div className={`h-2 w-[91px] rounded bg-[#e8eef7] ${pulse}`} />
-                </div>
-              </div>
-              <div className="flex flex-col gap-0">
-                <div className={`h-3 w-full rounded bg-[#c1cad9]/30 ${pulse}`} />
-                <div className={`h-3 w-full rounded bg-[#c1cad9]/30 ${pulse}`} />
-                <div className={`h-3 w-full rounded bg-[#c1cad9]/30 ${pulse}`} />
-                <div className={`h-3 w-[150px] max-w-full rounded bg-[#c1cad9]/30 ${pulse}`} />
-              </div>
+            <div className="flex flex-col gap-1">
+              <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-3 w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
             </div>
-
-            <div className="bg-[#f0f6ff] px-2 py-2">
-              <div className="flex flex-col gap-0">
-                <div className={`h-3 w-[209px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
-                <div className={`h-3 w-[209px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
-              </div>
-            </div>
-            <div className="bg-[#e3eeff] px-2 py-1">
-              <div className={`h-3 w-[150px] max-w-full rounded bg-[#c1cad9]/30 ${pulse}`} />
-            </div>
-            <div className="bg-[#f0f6ff] px-2 py-1">
-              <div className={`h-3 w-[150px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
-            </div>
-            <div className="flex w-full min-w-0 flex-col gap-0 bg-[#e3eeff] px-2 py-1">
-              <div className={`h-3 w-[150px] max-w-full rounded bg-[#c1cad9]/30 ${pulse}`} />
-              <div className="flex flex-col gap-0 pt-0">
-                <div className={`h-3 w-full rounded bg-[#c1cad9]/30 ${pulse}`} />
-                <div className={`h-3 w-full rounded bg-[#c1cad9]/30 ${pulse}`} />
-                <div className={`h-3 w-full rounded bg-[#c1cad9]/30 ${pulse}`} />
-              </div>
+          </div>
+          <div className="bg-[#f2f5fa] px-3 py-[15px]">
+            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+          </div>
+          <div className="px-3 py-[15px]">
+            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+          </div>
+          <div className="flex flex-col gap-1 bg-[#f2f5fa] px-3 py-4">
+            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+            <div className={`h-3 w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
+          </div>
+          <div className="px-3 py-[15px]">
+            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+          </div>
+          <div className="bg-[#f2f5fa] px-3 py-[15px]">
+            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+          </div>
+          <div className="flex flex-col gap-2.5 px-3 py-[17px]">
+            <div className={`h-3 w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
+            <div className="flex flex-col gap-1">
+              <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-3 w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
             </div>
           </div>
         </div>
-      </div>
-      <div className="flex w-full min-w-0 flex-col gap-3">
-        <div className={`h-9 w-full shrink-0 rounded bg-[#e8eef7] ${pulse}`} data-name="Button skeleton" />
-        <div className={`h-9 w-full shrink-0 rounded bg-[#e8eef7] ${pulse}`} data-name="Button skeleton" />
+        <div
+          className={`flex w-full min-w-0 px-3 pb-3 ${
+            columnCount === 2 ? "flex-row flex-wrap gap-2" : "flex-col gap-3"
+          }`}
+        >
+          <div
+            className={`h-9 shrink-0 rounded-lg bg-[#e8eef7] ${pulse} ${
+              columnCount === 2 ? "min-w-[174px] flex-1" : "w-full"
+            }`}
+            data-name="Button skeleton"
+          />
+          <div
+            className={`h-9 shrink-0 rounded-lg bg-[#e8eef7] ${pulse} ${
+              columnCount === 2 ? "min-w-[174px] flex-1" : "w-full"
+            }`}
+            data-name="Button skeleton"
+          />
+        </div>
       </div>
     </div>
   );
@@ -2182,17 +2021,18 @@ function CompareCourseColumnSkeleton() {
 const COMPARE_SYNC_ROW_KEYS = [
   "partner",
   "title",
-  "meta",
   "pills",
   "description",
+  "productType",
+  "level",
   "skills",
   "tools",
   "handsOn",
-  "ratingSummary",
+  "summary",
 ] as const;
 type CompareSyncRowKey = (typeof COMPARE_SYNC_ROW_KEYS)[number];
 
-/** Figma 2219:125198 — side-by-side comparison cards (tinted stripes, match tags, CTAs). */
+/** Figma 1971:51712 — comparison card (border shell, neutral stripes, match gradient, CTAs). */
 function CompareCourseColumn({
   course,
   registerRowRef,
@@ -2200,6 +2040,8 @@ function CompareCourseColumn({
   columnCount,
   canExploreAlternatives,
   onMenuAction,
+  showUpdatedBadge,
+  onOpenProduct,
 }: {
   course: CompareCourseDetail;
   registerRowRef: (key: CompareSyncRowKey) => (el: HTMLElement | null) => void;
@@ -2207,19 +2049,19 @@ function CompareCourseColumn({
   columnCount: number;
   canExploreAlternatives: boolean;
   onMenuAction: (action: ComparisonMenuAction) => void;
+  /** Shown after this course was swapped in via “Explore alternative” (not “More like this”). */
+  showUpdatedBadge: boolean;
+  onOpenProduct?: () => void;
 }) {
   const {
     thumb,
-    logo,
-    partnerInitial,
     partner,
     title,
-    meta,
-    rating,
     description,
     matchPercent,
     showAiSkillsTag,
-    recentlyUpdated,
+    productTypeLine,
+    levelLine,
     skillsLine,
     toolsLine,
     handsOnLine,
@@ -2232,40 +2074,62 @@ function CompareCourseColumn({
   return (
     <div className="flex min-h-0 min-w-0 w-full flex-col gap-3" data-name="Product cards - compare">
       <div
-        className="flex w-full min-w-0 flex-col items-start overflow-clip rounded-[14.25px] bg-[#f0f6ff] p-1.5"
+        className="flex w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#dae1ed] bg-white"
         data-name="ProductCard - compare"
+        role={onOpenProduct ? "link" : undefined}
+        tabIndex={onOpenProduct ? 0 : undefined}
+        onClick={() => onOpenProduct?.()}
+        onKeyDown={
+          onOpenProduct
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onOpenProduct();
+                }
+              }
+            : undefined
+        }
       >
-        <div className="flex w-full min-w-0 flex-col items-start overflow-clip rounded-[8px]" data-name="Card">
-          <div className="group/card relative isolate w-full shrink-0 overflow-clip rounded-[8px] aspect-[304/171]">
+        <div className="flex flex-col p-2" data-name="Image Area">
+          <div className="group/card relative isolate aspect-[380/212] w-full shrink-0 overflow-hidden rounded-lg">
             <img
               alt=""
-              className="pointer-events-none absolute inset-0 size-full max-w-none rounded-[8px] object-cover"
+              className="pointer-events-none absolute inset-0 size-full max-w-none rounded-lg object-cover"
               src={thumb}
             />
             <div
-              className="pointer-events-none absolute inset-0 rounded-[8px] bg-black/0 transition-colors group-hover/card:bg-black/20 group-focus-within/card:bg-black/20"
+              className="pointer-events-none absolute inset-0 rounded-lg bg-black/0 transition-colors group-hover/card:bg-black/40 group-focus-within/card:bg-black/40"
               aria-hidden
             />
-            <div className="absolute top-1 right-1 z-[2] opacity-0 transition-opacity group-hover/card:opacity-100 group-focus-within/card:opacity-100 has-[button[data-state=open]]:opacity-100">
+            {showUpdatedBadge ? (
+              <div
+                className="pointer-events-none absolute left-3 top-3 z-[1] rounded-2xl bg-[#e6f4ea] px-2 py-0.5 font-['Source_Sans_3',sans-serif] text-[12px] font-bold leading-[18px] text-[#137333]"
+                data-name="Updated badge"
+              >
+                Updated
+              </div>
+            ) : null}
+            <div className="absolute right-3 top-3 z-[2] opacity-0 transition-opacity group-hover/card:opacity-100 group-focus-within/card:opacity-100 has-[button[data-state=open]]:opacity-100">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
-                    className="pointer-events-auto flex size-8 items-center justify-center rounded-md text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/80"
+                    onClick={(e) => e.stopPropagation()}
+                    className="pointer-events-auto flex size-9 items-center justify-center rounded-lg text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/80"
                     aria-label="Course menu"
                   >
-                    <MoreVertical className="size-5" strokeWidth={2} />
+                    <MoreVertical className="size-6" strokeWidth={2} />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   side="bottom"
                   align="end"
                   sideOffset={8}
-                  className="min-w-[240px] rounded-2xl border border-[#e8eef7] bg-white p-2 shadow-lg"
+                  className="min-w-[175px] rounded-xl border border-[#e8eef7] bg-white p-2 shadow-[0px_0px_4px_0px_#e8eef7,0px_4px_12px_4px_rgba(54,64,81,0.08)]"
                 >
                   {columnCount < MAX_SELECTED_COURSES ? (
                     <DropdownMenuItem
-                      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2.5 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa]"
+                      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa]"
                       onSelect={() => onMenuAction("more")}
                     >
                       <span>More like this</span>
@@ -2273,15 +2137,15 @@ function CompareCourseColumn({
                     </DropdownMenuItem>
                   ) : null}
                   <DropdownMenuItem
-                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2.5 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa] data-[disabled]:pointer-events-none data-[disabled]:opacity-40"
+                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa] data-[disabled]:pointer-events-none data-[disabled]:opacity-40"
                     disabled={!canExploreAlternatives}
                     onSelect={() => onMenuAction("explore")}
                   >
-                    <span>Explore alternatives</span>
+                    <span>Explore alternative</span>
                     <img alt="" className="size-5 shrink-0 object-contain" src={reloadIcon} aria-hidden />
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2.5 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa] data-[highlighted]:text-[#0f1114]"
+                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa] data-[highlighted]:text-[#0f1114]"
                     onSelect={() => onMenuAction("remove")}
                   >
                     <span>Remove</span>
@@ -2291,157 +2155,155 @@ function CompareCourseColumn({
               </DropdownMenu>
             </div>
           </div>
-          <div className="relative flex w-full min-w-0 flex-col rounded-[8px]" data-name="Content">
-            <div
-              className="flex w-full min-w-0 flex-col gap-0 bg-[#f0f6ff] px-2 py-1.5"
-              data-name="Header"
-            >
-              <div
-                ref={reg("partner")}
-                style={rh?.partner != null ? { minHeight: rh.partner } : undefined}
-                className="flex min-h-6 w-full min-w-0 items-center gap-0.5"
-                data-name="Partner label"
-              >
-                <div className="relative flex size-6 shrink-0 flex-col items-center justify-center overflow-hidden rounded-[2px] p-[2px]">
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 rounded-[2px] border-[0.891px] border-solid border-[#dae1ed]"
-                  />
-                  <PmPartnerMark logo={logo} partnerInitial={partnerInitial} partner={partner} />
-                </div>
-                <p className="line-clamp-1 min-h-px min-w-0 flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[17.813px] text-[12.47px] text-[#5b6780]">
-                  {partner}
-                </p>
-              </div>
-              <div
-                className="flex w-full min-w-0 flex-col gap-0 px-0 pt-0 text-[#0f1114]"
-                data-name="Title"
-              >
-                <p
-                  ref={reg("title")}
-                  style={rh?.title != null ? { minHeight: rh.title } : undefined}
-                  className="line-clamp-3 w-full font-['Source_Sans_3',sans-serif] font-semibold text-[16px] leading-[20px] tracking-[-0.048px]"
-                >
-                  {title}
-                </p>
-                <p
-                  ref={reg("meta")}
-                  style={rh?.meta != null ? { minHeight: rh.meta } : undefined}
-                  className="line-clamp-2 min-w-0 w-full font-['Source_Sans_3',sans-serif] font-normal text-[12px] leading-[18px] text-[#0f1114]"
-                >
-                  {meta}
-                </p>
-              </div>
-            </div>
+        </div>
 
-            <div className="flex w-full min-w-0 flex-col gap-0 bg-[#e3eeff] px-2 py-2">
-              <div
-                ref={reg("pills")}
-                style={rh?.pills != null ? { minHeight: rh.pills } : undefined}
-                className="flex min-w-0 flex-wrap content-start items-start gap-0.5 pb-1"
-                data-name="Compare tags row"
-              >
-                <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#d65d00] to-[#9c1a84] px-[7px]">
-                  <span className="font-['Source_Sans_3',sans-serif] font-semibold text-[13px] leading-[22px] text-white whitespace-nowrap">
-                    {matchPct}% match
+        <div className="relative flex w-full min-w-0 flex-col" data-name="Content">
+          <div
+            className="flex flex-col gap-1 px-3 pb-4 pt-2"
+            data-name="Header"
+          >
+            <div
+              ref={reg("partner")}
+              style={rh?.partner != null ? { minHeight: rh.partner } : undefined}
+              className="flex w-full min-w-0 items-center gap-1"
+              data-name="Partner"
+            >
+              <p className="line-clamp-1 min-h-px min-w-0 flex-1 font-['Source_Sans_3',sans-serif] font-normal leading-[17.813px] text-[12.47px] text-[#5b6780]">
+                {partner}
+              </p>
+            </div>
+            <p
+              ref={reg("title")}
+              style={rh?.title != null ? { minHeight: rh.title } : undefined}
+              className="line-clamp-3 w-full font-['Source_Sans_3',sans-serif] font-semibold text-[16px] leading-[20px] tracking-[-0.048px] text-[#0f1114]"
+            >
+              {title}
+            </p>
+            <div
+              ref={reg("pills")}
+              style={rh?.pills != null ? { minHeight: rh.pills } : undefined}
+              className="flex flex-wrap content-start items-start gap-1 py-1"
+              data-name="Pills"
+            >
+              <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#6923de] to-[#3587fc] px-[7px]">
+                <span className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[13px] font-semibold leading-[22px] text-white">
+                  {matchPct}% match
+                </span>
+              </div>
+              {showAiSkillsTag ? (
+                <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full border-[1.19px] border-[#dae1ed] bg-white px-2 py-1">
+                  <span className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[13px] font-normal leading-[22px] text-[#5b6780]">
+                    AI Skills
                   </span>
                 </div>
-                {showAiSkillsTag ? (
-                  <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full border border-[#dae1ed] bg-white px-[7px]">
-                    <span className="font-['Source_Sans_3',sans-serif] font-normal text-[13px] leading-[22px] text-[#5b6780] whitespace-nowrap">
-                      AI Skills
-                    </span>
-                  </div>
-                ) : null}
-                {recentlyUpdated ? (
-                  <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full border border-[#dae1ed] bg-white px-[7px]">
-                    <span className="font-['Source_Sans_3',sans-serif] font-normal text-[13px] leading-[22px] text-[#5b6780] whitespace-nowrap">
-                      Recently updated
-                    </span>
-                  </div>
-                ) : null}
-              </div>
-              <div
-                ref={reg("description")}
-                style={rh?.description != null ? { minHeight: rh.description } : undefined}
-                className="w-full min-w-0 flex-1"
-              >
-                {description ? (
-                  <p className="line-clamp-5 font-['Source_Sans_3',sans-serif] font-normal text-[12px] leading-[18px] text-[#0f1114]">
-                    {description}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
-            <div
-              ref={reg("skills")}
-              style={rh?.skills != null ? { minHeight: rh.skills } : undefined}
-              className="bg-[#f0f6ff] px-2 py-2"
-            >
-              <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
-                <span className="font-bold">Skills: </span>
-                <span className="font-normal">{skillsLine}</span>
-              </p>
+              ) : null}
             </div>
             <div
-              ref={reg("tools")}
-              style={rh?.tools != null ? { minHeight: rh.tools } : undefined}
-              className="bg-[#e3eeff] px-2 py-1"
+              ref={reg("description")}
+              style={rh?.description != null ? { minHeight: rh.description } : undefined}
+              className="w-full min-w-0"
             >
-              <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
-                <span className="font-bold">Tools: </span>
-                <span className="font-normal">{toolsLine}</span>
-              </p>
-            </div>
-            <div
-              ref={reg("handsOn")}
-              style={rh?.handsOn != null ? { minHeight: rh.handsOn } : undefined}
-              className="bg-[#f0f6ff] px-2 py-1"
-            >
-              <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
-                <span className="font-bold">Hands-on learning: </span>
-                <span className="font-normal">{handsOnLine}</span>
-              </p>
-            </div>
-            <div
-              ref={reg("ratingSummary")}
-              style={rh?.ratingSummary != null ? { minHeight: rh.ratingSummary } : undefined}
-              className="flex w-full min-w-0 flex-col gap-0 bg-[#e3eeff] px-2 py-1"
-            >
-              <div className="flex items-center gap-0.5" data-name="RatingStat">
-                <div className="relative shrink-0 overflow-clip size-[14.25px]" data-name="toggles/StarFilled">
-                  <div className="absolute inset-[15.73%_15.56%_18.94%_15.54%]" data-name="Vector">
-                    <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 9.8182 9.30915">
-                      <path d={svgPaths.p63e9900} fill="var(--fill-0, #0F1114)" id="Vector" />
-                    </svg>
-                  </div>
-                </div>
-                <p className="font-['Source_Sans_3',sans-serif] font-normal text-[12px] leading-[18px] text-[#0f1114]">
-                  {rating}
+              {description ? (
+                <p className="line-clamp-5 font-['Source_Sans_3',sans-serif] text-[12px] font-normal leading-[18px] text-[#0f1114]">
+                  {description}
                 </p>
-              </div>
-              <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
-                <span className="font-bold">Summary: </span>
-                <span className="font-normal">{summaryLine}</span>
-              </p>
+              ) : null}
             </div>
           </div>
+
+          <div
+            ref={reg("productType")}
+            style={rh?.productType != null ? { minHeight: rh.productType } : undefined}
+            className="bg-[#f2f5fa] p-3"
+            data-name="Type"
+          >
+            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+              <span className="font-bold">Product type: </span>
+              <span className="font-normal">{productTypeLine}</span>
+            </p>
+          </div>
+          <div
+            ref={reg("level")}
+            style={rh?.level != null ? { minHeight: rh.level } : undefined}
+            className="p-3"
+            data-name="Level"
+          >
+            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+              <span className="font-bold">Level: </span>
+              <span className="font-normal">{levelLine}</span>
+            </p>
+          </div>
+          <div
+            ref={reg("skills")}
+            style={rh?.skills != null ? { minHeight: rh.skills } : undefined}
+            className="bg-[#f2f5fa] p-3"
+            data-name="Skills"
+          >
+            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+              <span className="font-bold">Skills: </span>
+              <span className="font-normal">{skillsLine}</span>
+            </p>
+          </div>
+          <div
+            ref={reg("tools")}
+            style={rh?.tools != null ? { minHeight: rh.tools } : undefined}
+            className="p-3"
+            data-name="Tools"
+          >
+            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+              <span className="font-bold">Tools: </span>
+              <span className="font-normal">{toolsLine}</span>
+            </p>
+          </div>
+          <div
+            ref={reg("handsOn")}
+            style={rh?.handsOn != null ? { minHeight: rh.handsOn } : undefined}
+            className="bg-[#f2f5fa] p-3"
+            data-name="HOL"
+          >
+            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+              <span className="font-bold">Hands-on learning: </span>
+              <span className="font-normal">{handsOnLine}</span>
+            </p>
+          </div>
+          <div
+            ref={reg("summary")}
+            style={rh?.summary != null ? { minHeight: rh.summary } : undefined}
+            className="flex flex-col gap-1 p-3"
+            data-name="Reviews"
+          >
+            <p className="min-w-full font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+              <span className="font-bold">Summary: </span>
+              <span className="font-normal">{summaryLine}</span>
+            </p>
+          </div>
         </div>
-      </div>
-      <div className="flex w-full min-w-0 flex-col gap-3">
-        <button
-          type="button"
-          className="w-full rounded-lg bg-[#0056d2] px-4 py-2.5 font-['Source_Sans_3',sans-serif] text-[14px] font-semibold leading-[20px] text-white transition-colors hover:bg-[#004cbd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
+
+        <div
+          className={`flex w-full min-w-0 px-3 pb-3 ${
+            columnCount === 2 ? "flex-row flex-wrap gap-2" : "flex-col gap-3"
+          }`}
+          data-name="CTAs"
         >
-          Enroll
-        </button>
-        <button
-          type="button"
-          className="w-full rounded-lg border border-[#0056d2] bg-white px-4 py-2.5 font-['Source_Sans_3',sans-serif] text-[14px] font-semibold leading-[20px] text-[#0056d2] transition-colors hover:bg-[#f8fafc] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
-        >
-          Create a learning plan
-        </button>
+          <button
+            type="button"
+            onClick={(e) => e.stopPropagation()}
+            className={`rounded-lg bg-[#0056d2] px-4 py-2.5 font-['Source_Sans_3',sans-serif] text-[14px] font-semibold leading-[20px] text-white transition-colors hover:bg-[#004cbd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2] ${
+              columnCount === 2 ? "min-w-[174px] flex-1" : "w-full"
+            }`}
+          >
+            Enroll
+          </button>
+          <button
+            type="button"
+            onClick={(e) => e.stopPropagation()}
+            className={`rounded-lg border border-[#0056d2] bg-white px-4 py-2.5 font-['Source_Sans_3',sans-serif] text-[14px] font-semibold leading-[20px] text-[#0056d2] transition-colors hover:bg-[#f8fafc] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2] ${
+              columnCount === 2 ? "min-w-[174px] flex-1" : "w-full"
+            }`}
+          >
+            Create a learning plan
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -2453,12 +2315,17 @@ function CourseComparisonView({
   serpResultsMode,
   loadingColumnIndexes,
   onComparisonMenuAction,
+  exploreUpdatedCourseIds,
+  onOpenProductCourse,
 }: {
   courses: ResolvedSerpCourse[];
   onBack: () => void;
   serpResultsMode: SerpResultsMode;
   loadingColumnIndexes: ReadonlySet<number>;
   onComparisonMenuAction: (action: ComparisonMenuAction, columnIndex: number) => void;
+  /** Course IDs that should show the “Updated” thumbnail badge (explore swap only). */
+  exploreUpdatedCourseIds: ReadonlySet<string>;
+  onOpenProductCourse?: (id: string) => void;
 }) {
   const courseKey = useMemo(() => courses.map((c) => c.id).join("|"), [courses]);
   const rows = useMemo(
@@ -2547,17 +2414,11 @@ function CourseComparisonView({
   const n = rows.length;
   return (
     <div className="w-full min-w-0" data-name="Course comparison">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+      <div className="mb-4 flex flex-col gap-2">
+        <BackLink onClick={onBack} aria-label="Back to results" />
         <p className="font-['Source_Sans_3',sans-serif] font-semibold text-[20px] leading-[24px] text-[#0f1114] tracking-[-0.06px]">
           Comparing {n} courses
         </p>
-        <button
-          type="button"
-          className="shrink-0 rounded-lg bg-white px-3 py-1.5 font-['Source_Sans_3',sans-serif] text-[14px] leading-[20px] text-[#0056d2] transition-colors hover:bg-[#f8fafc] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
-          onClick={onBack}
-        >
-          Back to results
-        </button>
       </div>
       <div
         className={`grid w-full min-w-0 items-stretch gap-4 ${
@@ -2569,7 +2430,7 @@ function CourseComparisonView({
         {compareColumnsReady
           ? rows.map((c, i) =>
               loadingColumnIndexes.has(i) ? (
-                <CompareCourseColumnSkeleton key={`sk-col-${i}-${c.id}`} />
+                <CompareCourseColumnSkeleton key={`sk-col-${i}-${c.id}`} columnCount={n} />
               ) : (
                 <CompareCourseColumn
                   key={c.id}
@@ -2577,6 +2438,8 @@ function CourseComparisonView({
                   columnCount={rows.length}
                   canExploreAlternatives={canExploreAtIndex[i] ?? false}
                   onMenuAction={(action) => onComparisonMenuAction(action, i)}
+                  showUpdatedBadge={exploreUpdatedCourseIds.has(c.id)}
+                  onOpenProduct={onOpenProductCourse ? () => onOpenProductCourse(c.id) : undefined}
                   registerRowRef={(key) => (el) => {
                     const slot = compareRowRefs.current[key] ?? (compareRowRefs.current[key] = []);
                     slot[i] = el;
@@ -2585,7 +2448,9 @@ function CourseComparisonView({
                 />
               ),
             )
-          : Array.from({ length: n }, (_, i) => <CompareCourseColumnSkeleton key={`sk-${i}`} />)}
+          : Array.from({ length: n }, (_, i) => (
+              <CompareCourseColumnSkeleton key={`sk-${i}`} columnCount={n} />
+            ))}
       </div>
     </div>
   );
@@ -2599,6 +2464,7 @@ function ListPmFiltered({
   selectedIds: Set<string>;
   onToggle: (id: string) => void;
 }) {
+  const navigate = useNavigate();
   const limitReached = selectedIds.size >= MAX_SELECTED_COURSES;
   return (
     <div className="grid w-full min-w-0 grid-cols-3 gap-4 items-stretch" data-name="List">
@@ -2609,6 +2475,7 @@ function ListPmFiltered({
             selected={selectedIds.has(`pm:${i}`)}
             onToggleSelect={() => onToggle(`pm:${i}`)}
             selectionDisabled={limitReached && !selectedIds.has(`pm:${i}`)}
+            onCardNavigate={() => navigate(ROUTES.product(`pm:${i}`))}
           />
         </div>
       ))}
@@ -2626,7 +2493,9 @@ function List({
   selectedIds: Set<string>;
   onToggle: (id: string) => void;
 }) {
+  const navigate = useNavigate();
   const limitReached = selectedIds.size >= MAX_SELECTED_COURSES;
+  const goProduct = (id: string) => () => navigate(ROUTES.product(id));
   return (
     <div
       className="grid w-full min-w-0 grid-cols-3 gap-3 items-stretch"
@@ -2638,6 +2507,7 @@ function List({
           onToggleSelect={() => onToggle("default:0")}
           title={SERP_DEFAULT_RESULT_TITLES[0]}
           selectionDisabled={limitReached && !selectedIds.has("default:0")}
+          onCardNavigate={goProduct("default:0")}
         />
       </div>
       <div className="flex h-full min-h-0 flex-col items-stretch relative min-w-0 w-full" data-name="Product cards">
@@ -2646,6 +2516,7 @@ function List({
           onToggleSelect={() => onToggle("default:1")}
           title={SERP_DEFAULT_RESULT_TITLES[1]}
           selectionDisabled={limitReached && !selectedIds.has("default:1")}
+          onCardNavigate={goProduct("default:1")}
         />
       </div>
       <div className="flex h-full min-h-0 flex-col items-stretch relative min-w-0 w-full" data-name="Product cards">
@@ -2654,6 +2525,7 @@ function List({
           onToggleSelect={() => onToggle("default:2")}
           title={SERP_DEFAULT_RESULT_TITLES[2]}
           selectionDisabled={limitReached && !selectedIds.has("default:2")}
+          onCardNavigate={goProduct("default:2")}
         />
       </div>
       <div className="flex h-full min-h-0 flex-col items-stretch relative min-w-0 w-full" data-name="Product cards">
@@ -2662,6 +2534,7 @@ function List({
           onToggleSelect={() => onToggle("default:3")}
           title={SERP_DEFAULT_RESULT_TITLES[3]}
           selectionDisabled={limitReached && !selectedIds.has("default:3")}
+          onCardNavigate={goProduct("default:3")}
         />
       </div>
       <div className="flex h-full min-h-0 flex-col items-stretch relative min-w-0 w-full" data-name="Product cards">
@@ -2670,6 +2543,7 @@ function List({
           onToggleSelect={() => onToggle("default:4")}
           title={SERP_DEFAULT_RESULT_TITLES[4]}
           selectionDisabled={limitReached && !selectedIds.has("default:4")}
+          onCardNavigate={goProduct("default:4")}
         />
       </div>
       <div className="flex h-full min-h-0 flex-col items-stretch relative min-w-0 w-full" data-name="Product cards">
@@ -2678,6 +2552,7 @@ function List({
           onToggleSelect={() => onToggle("default:5")}
           title={SERP_DEFAULT_RESULT_TITLES[5]}
           selectionDisabled={limitReached && !selectedIds.has("default:5")}
+          onCardNavigate={goProduct("default:5")}
         />
       </div>
       <div className="col-span-full w-full min-w-0">
@@ -2689,6 +2564,7 @@ function List({
           onToggleSelect={() => onToggle("default:6")}
           title={SERP_DEFAULT_RESULT_TITLES[6]}
           selectionDisabled={limitReached && !selectedIds.has("default:6")}
+          onCardNavigate={goProduct("default:6")}
         />
       </div>
       <div className="flex h-full min-h-0 flex-col items-stretch relative min-w-0 w-full" data-name="Product cards">
@@ -2697,6 +2573,7 @@ function List({
           onToggleSelect={() => onToggle("default:7")}
           title={SERP_DEFAULT_RESULT_TITLES[7]}
           selectionDisabled={limitReached && !selectedIds.has("default:7")}
+          onCardNavigate={goProduct("default:7")}
         />
       </div>
       <div className="flex h-full min-h-0 flex-col items-stretch relative min-w-0 w-full" data-name="Product cards">
@@ -2705,6 +2582,7 @@ function List({
           onToggleSelect={() => onToggle("default:8")}
           title={SERP_DEFAULT_RESULT_TITLES[8]}
           selectionDisabled={limitReached && !selectedIds.has("default:8")}
+          onCardNavigate={goProduct("default:8")}
         />
       </div>
     </div>
@@ -3094,7 +2972,7 @@ function exploreAlternativesSummaryBlurb(
   replaced: CompareCourseDetail | null,
 ): string {
   const firstDesc =
-    newD.description.split(/(?<=[.!?])\s/)[0]?.trim() ?? newD.summaryLine.slice(0, 200);
+    newD.description?.split(/(?<=[.!?])\s/)[0]?.trim() ?? newD.summaryLine.slice(0, 200);
   let text = `${firstDesc} (${newD.meta}).`;
   if (replaced) {
     text += ` It replaces ${replaced.title} in this column—same slot, refreshed pick you can compare with your other courses.`;
@@ -3153,7 +3031,7 @@ function compareDifferenceLine(d: CompareCourseDetail, index: number): string {
   if (tm.includes("supercharge your product management career")) {
     return "is more tactical and specific, emphasizing practical ways PMs can use generative AI to boost strategic leadership.";
   }
-  const firstDesc = d.description.split(/(?<=[.!?])\s/)[0]?.trim() ?? d.summaryLine.slice(0, 140);
+  const firstDesc = d.description?.split(/(?<=[.!?])\s/)[0]?.trim() ?? d.summaryLine.slice(0, 140);
   const angles = [
     `is weighted toward foundational breadth (${d.meta}) — ${firstDesc}`,
     `stresses applied workflows you can reuse quickly (${d.meta}) — ${firstDesc}`,
@@ -4046,53 +3924,10 @@ function FollowUpPromptPills({ onSelect }: { onSelect: (label: string) => void }
   );
 }
 
-/** Chat header sparkle — `src/assets/sparkle.svg`, 20px (Figma 2156:31405). */
-function ChatPanelSparkleIcon() {
-  return (
-    <div className="relative shrink-0 size-[20px]" data-name="Variant B Icon" aria-hidden>
-      <img alt="" className="block size-full object-contain" src={sparkleIcon} />
-    </div>
-  );
-}
-
-/** Figma Chat header (2156:31405): sparkle + settings + close. */
-function ChatPanelHeader({ onClose }: { onClose?: () => void }) {
-  return (
-    <header
-      className="bg-white content-stretch flex h-[49px] shrink-0 w-full items-center justify-between overflow-clip px-[16px]"
-      data-name="Chat header"
-    >
-      <ChatPanelSparkleIcon />
-      <div
-        className="content-stretch flex shrink-0 items-center gap-[4px]"
-        data-name="Text input/AI Chat Top Buttons"
-      >
-        <button
-          type="button"
-          className="flex cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent p-1 text-[#5b6780] transition-colors hover:bg-[#f2f5fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
-          aria-label="Assistant settings"
-        >
-          <img alt="" className="size-5 shrink-0 object-contain" src={actionsSettings} aria-hidden />
-        </button>
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent p-1 text-[#5b6780] transition-colors hover:bg-[#f2f5fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
-          aria-label="Close assistant panel"
-        >
-          <img alt="" className="size-5 shrink-0 object-contain" src={actionsClose} aria-hidden />
-        </button>
-      </div>
-    </header>
-  );
-}
-
 function ChatPanelSkeleton({ onClose }: { onClose?: () => void }) {
   return (
     <aside
-      className="relative flex flex-col bg-white z-[15] border-[#dae1ed] min-h-0 justify-between
-        max-sm:relative max-sm:mt-6 max-sm:w-full max-sm:border max-sm:rounded-lg max-sm:max-h-[min(560px,72dvh)] max-sm:overflow-hidden
-        sm:fixed sm:top-[108px] sm:h-[calc(100dvh-108px)] sm:w-[384px] sm:shrink-0 sm:border-l sm:border-t-0 sm:border-r-0 sm:border-b-0 sm:[right:max(0px,calc((100vw-1440px)/2))]"
+      className={CHAT_PANEL_ASIDE_CLASS}
       data-name="Chat Panel"
       aria-busy="true"
       aria-label="Loading assistant"
@@ -4354,12 +4189,7 @@ function ChatPanel({
   );
 
   return (
-    <aside
-      className="relative flex flex-col bg-white z-[15] border-[#dae1ed] min-h-0 justify-between
-        max-sm:relative max-sm:mt-6 max-sm:w-full max-sm:border max-sm:rounded-lg max-sm:max-h-[min(560px,72dvh)] max-sm:overflow-hidden
-        sm:fixed sm:top-[108px] sm:h-[calc(100dvh-108px)] sm:w-[384px] sm:shrink-0 sm:border-l sm:border-t-0 sm:border-r-0 sm:border-b-0 sm:[right:max(0px,calc((100vw-1440px)/2))]"
-      data-name="Chat Panel"
-    >
+    <aside className={CHAT_PANEL_ASIDE_CLASS} data-name="Chat Panel">
       <ChatPanelHeader onClose={onClose} />
       <div
         ref={chatScrollRef}
@@ -4441,6 +4271,8 @@ export default function SearchResultsPage() {
   const [comparisonActive, setComparisonActive] = useState(false);
   const [comparisonColumnOrder, setComparisonColumnOrder] = useState<string[] | null>(null);
   const [comparisonColumnLoading, setComparisonColumnLoading] = useState<Set<number>>(() => new Set());
+  /** Course IDs showing the “Updated” badge after Explore alternative (cleared for More like this adds). */
+  const [compareExploreUpdatedIds, setCompareExploreUpdatedIds] = useState<Set<string>>(() => new Set());
   const comparisonChatSeqRef = useRef(0);
   const nextComparisonChatSeq = useCallback(() => {
     comparisonChatSeqRef.current += 1;
@@ -4480,7 +4312,13 @@ export default function SearchResultsPage() {
         setComparisonColumnOrder(null);
         setSelectedCourseIds(new Set(next));
         setComparisonActive(false);
+        setCompareExploreUpdatedIds(new Set());
       } else {
+        setCompareExploreUpdatedIds((prev) => {
+          const n = new Set(prev);
+          n.delete(id);
+          return n;
+        });
         setComparisonColumnOrder(next);
         setSelectedCourseIds(new Set(next));
       }
@@ -4507,15 +4345,22 @@ export default function SearchResultsPage() {
     (action: ComparisonMenuAction, columnIndex: number) => {
       if (!comparisonColumnOrder) return;
       if (action === "remove") {
+        const removedId = comparisonColumnOrder[columnIndex];
         setRemoveCourseChatExchanges((prev) => [
           ...prev,
           { key: uniqueChatExchangeKey("remove"), seq: nextComparisonChatSeq() },
         ]);
         const next = comparisonColumnOrder.filter((_, i) => i !== columnIndex);
+        setCompareExploreUpdatedIds((prev) => {
+          const n = new Set(prev);
+          n.delete(removedId);
+          return n;
+        });
         if (next.length < 2) {
           setComparisonColumnOrder(null);
           setSelectedCourseIds(new Set(next));
           setComparisonActive(false);
+          setCompareExploreUpdatedIds(new Set());
         } else {
           setComparisonColumnOrder(next);
           setSelectedCourseIds(new Set(next));
@@ -4552,6 +4397,11 @@ export default function SearchResultsPage() {
             n.delete(newIndex);
             return n;
           });
+          setCompareExploreUpdatedIds((prev) => {
+            const n = new Set(prev);
+            n.delete(nextId);
+            return n;
+          });
         }, 650);
         return;
       }
@@ -4582,6 +4432,12 @@ export default function SearchResultsPage() {
             n.delete(columnIndex);
             return n;
           });
+          setCompareExploreUpdatedIds((prev) => {
+            const n = new Set(prev);
+            n.delete(replacedId);
+            n.add(replacement);
+            return n;
+          });
         }, 650);
       }
     },
@@ -4592,11 +4448,13 @@ export default function SearchResultsPage() {
     setComparisonActive(false);
     setComparisonColumnOrder(null);
     setComparisonColumnLoading(new Set());
+    setCompareExploreUpdatedIds(new Set());
   }, []);
 
   const enterComparison = useCallback(() => {
     if (selectedCourseIds.size < 2) return;
     const order = Array.from(selectedCourseIds).slice(0, MAX_SELECTED_COURSES);
+    setCompareExploreUpdatedIds(new Set());
     setComparisonColumnOrder(order);
     setComparisonActive(true);
   }, [selectedCourseIds]);
@@ -4651,6 +4509,16 @@ export default function SearchResultsPage() {
     else setSearchParams({}, { replace: true });
   }, [headerSearchDraft, setSearchParams]);
 
+  const onHeaderAutocompletePick = useCallback(
+    (q: string) => {
+      const t = q.trim();
+      if (!t) return;
+      setHeaderSearchDraft(t);
+      setSearchParams({ q: t }, { replace: true });
+    },
+    [setSearchParams],
+  );
+
   const closeAiPanel = useCallback(() => setAiPanelOpen(false), []);
   const toggleAiPanel = useCallback(() => setAiPanelOpen((o) => !o), []);
 
@@ -4687,6 +4555,7 @@ export default function SearchResultsPage() {
             query: headerSearchDraft,
             onQueryChange: setHeaderSearchDraft,
             onSearchSubmit: submitHeaderSearch,
+            onAutocompletePick: onHeaderAutocompletePick,
             aiPanelOpen,
             onAiSparkleClick: toggleAiPanel,
           }}
@@ -4727,6 +4596,8 @@ export default function SearchResultsPage() {
                 serpResultsMode={serpResultsMode}
                 loadingColumnIndexes={comparisonColumnLoading}
                 onComparisonMenuAction={handleComparisonMenuAction}
+                exploreUpdatedCourseIds={compareExploreUpdatedIds}
+                onOpenProductCourse={(id) => navigate(ROUTES.product(id))}
               />
             ) : serpResultsMode === "default" ? (
               <List selectedIds={selectedCourseIds} onToggle={toggleCourseSelection} />
