@@ -1,11 +1,19 @@
 import adobeLogo from "../assets/adobe.png";
+import adobeLogoLg from "../assets/adobe-lg.png";
 import courseraLogo from "../assets/coursera.png";
+import courseraLogoLg from "../assets/coursera-lg.png";
 import deeplearningLogo from "../assets/deeplearning.png";
+import deeplearningLogoLg from "../assets/deeplearning-lg.png";
 import googleLogo from "../assets/google.png";
+import googleCloudLogoLg from "../assets/googlecloud-lg.png";
 import ibmLogo from "../assets/ibm.png";
+import ibmLogoLg from "../assets/ibm-lg.png";
 import simplilearnLogo from "../assets/simplilearn.png";
+import simplilearnLogoLg from "../assets/simplilearn-lg.png";
 import skillupLogo from "../assets/skillup.png";
+import skillupLogoLg from "../assets/skillup-lg.png";
 import starweaverLogo from "../assets/starweaver.png";
+import starweaverLogoLg from "../assets/starweaver-lg.png";
 import serp1 from "../assets/serp1.png";
 import serp2 from "../assets/serp2.png";
 import serp2_1 from "../assets/serp2-1.png";
@@ -134,6 +142,29 @@ export const SERP_DEFAULT_PARTNERS = [
   "Adobe",
 ] as const;
 
+/** Figma 2109:76898 — fake instructor display names aligned with `SERP_DEFAULT_RESULT_TITLES` indices. */
+export const SERP_DEFAULT_INSTRUCTOR_NAMES = [
+  "Dr. Elena Vasquez",
+  "James Chen",
+  "Priya Sharma",
+  "Marcus Webb",
+  "Sofia Lindström",
+  "David Okonkwo",
+  "Rachel Kim",
+  "Tomás Rivera",
+  "Amira Hassan",
+] as const;
+
+/** Figma 2109:76898 — fake instructor names aligned with `PM_RESULT_CARDS` indices. */
+export const PM_INSTRUCTOR_NAMES = [
+  "Dr. Anya Petrov",
+  "Jordan Blake",
+  "Morgan Ellis",
+  "Barbara Oakley",
+  "Chris Dalton",
+  "Nina Patel",
+] as const;
+
 export const SERP_DEFAULT_META = "Beginner · Course · 1-4 weeks";
 export const SERP_DEFAULT_RATING = "4.9 · 3.4k reviews";
 
@@ -214,6 +245,8 @@ export type ResolvedSerpCourse = {
   thumb: string;
   meta: string;
   rating: string;
+  /** Figma 2109:76898 — single instructor row on PDP hero. */
+  instructorName: string;
 };
 
 export type CompareCourseDetail = ResolvedSerpCourse & {
@@ -242,6 +275,7 @@ export function resolveSerpCourseId(id: string): ResolvedSerpCourse | null {
       thumb: SERP_DEFAULT_THUMBS[idx],
       meta: SERP_DEFAULT_META,
       rating: SERP_DEFAULT_RATING,
+      instructorName: SERP_DEFAULT_INSTRUCTOR_NAMES[idx],
     };
   }
   if (id.startsWith("pm:")) {
@@ -255,6 +289,7 @@ export function resolveSerpCourseId(id: string): ResolvedSerpCourse | null {
       thumb: c.thumb,
       meta: c.meta,
       rating: SERP_DEFAULT_RATING,
+      instructorName: PM_INSTRUCTOR_NAMES[idx],
     };
   }
   return null;
@@ -279,6 +314,20 @@ export function partnerLogoForDefaultSerp(partner: string): string | undefined {
   return undefined;
 }
 
+/** PDP hero: high-res partner marks keyed the same way as `partnerLogoForDefaultSerp`. */
+export function partnerLogoLgForPartner(partner: string): string | undefined {
+  const p = partner.toLowerCase();
+  if (p.includes("ibm")) return ibmLogoLg;
+  if (p.includes("google")) return googleCloudLogoLg;
+  if (p.includes("deeplearning")) return deeplearningLogoLg;
+  if (p.includes("adobe")) return adobeLogoLg;
+  if (p.includes("coursera")) return courseraLogoLg;
+  if (p.includes("simplilearn")) return simplilearnLogoLg;
+  if (p.includes("starweaver")) return starweaverLogoLg;
+  if (p.includes("skillup")) return skillupLogoLg;
+  return undefined;
+}
+
 export function resolveCompareCourseDetail(id: string): CompareCourseDetail | null {
   const base = resolveSerpCourseId(id);
   if (!base) return null;
@@ -299,7 +348,8 @@ export function resolveCompareCourseDetail(id: string): CompareCourseDetail | nu
       ...base,
       logo: c.logo,
       partnerInitial: c.partnerInitial,
-      description: c.description,
+      /** Good-fit copy only when the card shows a % match tag (see Figma PM product cards). */
+      description: c.matchPercent != null ? c.description : undefined,
       matchPercent: comparisonMatchFallback,
       showAiSkillsTag: c.showAiSkillsTag,
       productTypeLine: metaRows.productTypeLine,

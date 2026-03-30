@@ -152,7 +152,7 @@ export function IdleAutocompletePanel({ onPick }: { onPick: (q: string) => void 
                 <p className="font-['Source_Sans_3',sans-serif] text-[16px] font-semibold leading-[20px] tracking-[-0.048px] text-[#0f1114]">
                   {card.title}
                 </p>
-                <p className="font-['Source_Sans_3',sans-serif] text-[12px] font-normal leading-[20px] text-[#5b6780]">{card.meta}</p>
+                <p className="font-['Source_Sans_3',sans-serif] text-[14px] font-normal leading-[20px] text-[#5b6780]">{card.meta}</p>
               </div>
             </button>
           ))}

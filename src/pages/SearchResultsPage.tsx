@@ -5,11 +5,9 @@ import {
   useMemo,
   useRef,
   useState,
-  type FormEvent,
-  type KeyboardEvent,
   type ReactNode,
 } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import adobeLogo from "../assets/adobe.png";
 import courseraLogo from "../assets/coursera.png";
 import deeplearningLogo from "../assets/deeplearning.png";
@@ -28,14 +26,7 @@ import serp6 from "../assets/serp6.png";
 import serp7 from "../assets/serp7.png";
 import serp8 from "../assets/serp8.png";
 import serp9 from "../assets/serp9.png";
-import actionsAdd from "../assets/actions-add.svg";
-import actionsAudio from "../assets/actions-audio.svg";
 import actionsClose from "../assets/actions-close.svg";
-import actionsCopy from "../assets/actions-copy.svg";
-import actionsMore from "../assets/actions-more.svg";
-import actionsReload from "../assets/actions-reload.svg";
-import actionsThumbsDown from "../assets/actions-thumbsdown.svg";
-import actionsThumbsUp from "../assets/actions-thumbsup.svg";
 import reloadIcon from "../assets/reload.svg";
 import sparkleIcon from "../assets/sparkle.svg";
 import { RoleIcon } from "@/components/icons/roleIcons";
@@ -58,7 +49,26 @@ import {
   SerpCardImageSlot,
   type SerpCardSelection,
 } from "@/components/search/SerpCardPrimitives";
-import { CHAT_PANEL_ASIDE_CLASS, ChatPanelHeader } from "@/components/chat/ChatPanelChrome";
+import {
+  ComposerSelectedCoursesAttachment,
+  PdpComposerCoursePill,
+  PdpCourseFollowUpPills,
+  SingleCourseFollowUpPills,
+} from "@/components/chat/ChatComposerFollowUps";
+import { ChatInput, ChatInputSkeleton } from "@/components/chat/ChatMessageComposer";
+import { AiResponseTypingBlock, TypingCaretInline, UserMessageLoadingSkeleton } from "@/components/chat/ChatTypingAnimations";
+import {
+  AI_CHARS_PER_STEP,
+  AI_MESSAGE_BODY_CLASS,
+  AI_TYPE_MS_PER_STEP,
+  AI_TYPEWRITER_INITIAL_DELAY_MS,
+  AI_TYPING_BOLD_CLASS,
+} from "@/components/chat/chatTypingConstants";
+import { ChatAiMessageActions, UserMessageChip } from "@/components/chat/ChatConversationPrimitives";
+import { PdpChatContinuationAnimated } from "@/components/chat/PdpChatContinuation";
+import { ChatPanelShell } from "@/components/chat/ChatPanelShell";
+import { RolesChatEmptyState } from "@/components/chat/RolesChatEmptyState";
+import { useGlobalChat } from "@/context/GlobalChatContext";
 import { SerpFilterBar, SerpFilterBarSkeleton } from "@/components/search/SerpFilterBar";
 import { SerpResultsSkeleton } from "@/components/search/SerpResultsSkeleton";
 import {
@@ -115,7 +125,7 @@ function ImageWrapper() {
 function Title() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[22px] min-h-px min-w-px relative text-[#0f1114] text-[15px] tracking-[-0.03px]">Generative AI: Introduction and Applications</p>
+      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] min-h-px min-w-px relative text-[#0f1114] text-[16px] tracking-[-0.048px]">Generative AI: Introduction and Applications</p>
     </div>
   );
 }
@@ -128,7 +138,7 @@ function Header() {
           <div aria-hidden="true" className="absolute border-[#dae1ed] border-[0.891px] border-solid inset-0 pointer-events-none rounded-[2px]" />
           <ImageWrapper />
         </div>
-        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[16px] min-h-px min-w-px relative text-[#5b6780] text-[11px]">IBM</p>
+        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] min-h-px min-w-px relative text-[#5b6780] text-[14px]">IBM</p>
       </div>
       <Title />
     </div>
@@ -145,10 +155,10 @@ function RatingStatContainer() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -174,7 +184,7 @@ function DataType3Group() {
 
 function Row() {
   return (
-    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[18px] relative shrink-0 text-[#5b6780] text-[12px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
+    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[20px] relative shrink-0 text-[#5b6780] text-[14px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
       <p className="relative shrink-0">Beginner</p>
       <DataType2Group />
       <DataType3Group />
@@ -279,7 +289,7 @@ function ImageWrapper1() {
 function Title1() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[22px] min-h-px min-w-px relative text-[#0f1114] text-[15px] tracking-[-0.03px]">Generative AI for Everyone</p>
+      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] min-h-px min-w-px relative text-[#0f1114] text-[16px] tracking-[-0.048px]">Generative AI for Everyone</p>
     </div>
   );
 }
@@ -292,7 +302,7 @@ function Header1() {
           <div aria-hidden="true" className="absolute border-[#dae1ed] border-[0.891px] border-solid inset-0 pointer-events-none rounded-[2px]" />
           <ImageWrapper1 />
         </div>
-        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[16px] min-h-px min-w-px relative text-[#5b6780] text-[11px]">DeepLearning.AI</p>
+        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] min-h-px min-w-px relative text-[#5b6780] text-[14px]">DeepLearning.AI</p>
       </div>
       <Title1 />
     </div>
@@ -309,10 +319,10 @@ function RatingStatContainer1() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -338,7 +348,7 @@ function DataType3Group1() {
 
 function Row1() {
   return (
-    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[18px] relative shrink-0 text-[#5b6780] text-[12px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
+    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[20px] relative shrink-0 text-[#5b6780] text-[14px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
       <p className="relative shrink-0">Beginner</p>
       <DataType2Group1 />
       <DataType3Group1 />
@@ -443,7 +453,7 @@ function ImageWrapper2() {
 function Title2() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[22px] min-h-px min-w-px relative text-[#0f1114] text-[15px] tracking-[-0.03px]">Generative AI Leader</p>
+      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] min-h-px min-w-px relative text-[#0f1114] text-[16px] tracking-[-0.048px]">Generative AI Leader</p>
     </div>
   );
 }
@@ -456,7 +466,7 @@ function Header2() {
           <div aria-hidden="true" className="absolute border-[#dae1ed] border-[0.891px] border-solid inset-0 pointer-events-none rounded-[2px]" />
           <ImageWrapper2 />
         </div>
-        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[16px] min-h-px min-w-px relative text-[#5b6780] text-[11px]">Google Cloud</p>
+        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] min-h-px min-w-px relative text-[#5b6780] text-[14px]">Google Cloud</p>
       </div>
       <Title2 />
     </div>
@@ -473,10 +483,10 @@ function RatingStatContainer2() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -502,7 +512,7 @@ function DataType3Group2() {
 
 function Row2() {
   return (
-    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[18px] relative shrink-0 text-[#5b6780] text-[12px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
+    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[20px] relative shrink-0 text-[#5b6780] text-[14px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
       <p className="relative shrink-0">Beginner</p>
       <DataType2Group2 />
       <DataType3Group2 />
@@ -607,7 +617,7 @@ function ImageWrapper3() {
 function Title3() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[22px] min-h-px min-w-px relative text-[#0f1114] text-[15px] tracking-[-0.03px]">IBM Generative AI Engineering</p>
+      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] min-h-px min-w-px relative text-[#0f1114] text-[16px] tracking-[-0.048px]">IBM Generative AI Engineering</p>
     </div>
   );
 }
@@ -620,7 +630,7 @@ function Header3() {
           <div aria-hidden="true" className="absolute border-[#dae1ed] border-[0.891px] border-solid inset-0 pointer-events-none rounded-[2px]" />
           <ImageWrapper3 />
         </div>
-        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[16px] min-h-px min-w-px relative text-[#5b6780] text-[11px]">IBM</p>
+        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] min-h-px min-w-px relative text-[#5b6780] text-[14px]">IBM</p>
       </div>
       <Title3 />
     </div>
@@ -637,10 +647,10 @@ function RatingStatContainer3() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -666,7 +676,7 @@ function DataType3Group3() {
 
 function Row3() {
   return (
-    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[18px] relative shrink-0 text-[#5b6780] text-[12px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
+    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[20px] relative shrink-0 text-[#5b6780] text-[14px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
       <p className="relative shrink-0">Beginner</p>
       <DataType2Group3 />
       <DataType3Group3 />
@@ -771,7 +781,7 @@ function ImageWrapper4() {
 function Title4() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[22px] min-h-px min-w-px relative text-[#0f1114] text-[15px] tracking-[-0.03px]">Introduction to Generative AI</p>
+      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] min-h-px min-w-px relative text-[#0f1114] text-[16px] tracking-[-0.048px]">Introduction to Generative AI</p>
     </div>
   );
 }
@@ -784,7 +794,7 @@ function Header4() {
           <div aria-hidden="true" className="absolute border-[#dae1ed] border-[0.891px] border-solid inset-0 pointer-events-none rounded-[2px]" />
           <ImageWrapper4 />
         </div>
-        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[16px] min-h-px min-w-px relative text-[#5b6780] text-[11px]">Google CLoud</p>
+        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] min-h-px min-w-px relative text-[#5b6780] text-[14px]">Google CLoud</p>
       </div>
       <Title4 />
     </div>
@@ -801,10 +811,10 @@ function RatingStatContainer4() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -830,7 +840,7 @@ function DataType3Group4() {
 
 function Row4() {
   return (
-    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[18px] relative shrink-0 text-[#5b6780] text-[12px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
+    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[20px] relative shrink-0 text-[#5b6780] text-[14px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
       <p className="relative shrink-0">Beginner</p>
       <DataType2Group4 />
       <DataType3Group4 />
@@ -937,7 +947,7 @@ function ImageWrapper5() {
 function Title5() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[22px] min-h-px min-w-px relative text-[#0f1114] text-[15px] tracking-[-0.03px]">Generative AI Engineering with LLMs</p>
+      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] min-h-px min-w-px relative text-[#0f1114] text-[16px] tracking-[-0.048px]">Generative AI Engineering with LLMs</p>
     </div>
   );
 }
@@ -950,7 +960,7 @@ function Header5() {
           <div aria-hidden="true" className="absolute border-[#dae1ed] border-[0.891px] border-solid inset-0 pointer-events-none rounded-[2px]" />
           <ImageWrapper5 />
         </div>
-        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[16px] min-h-px min-w-px relative text-[#5b6780] text-[11px]">IBM</p>
+        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] min-h-px min-w-px relative text-[#5b6780] text-[14px]">IBM</p>
       </div>
       <Title5 />
     </div>
@@ -967,10 +977,10 @@ function RatingStatContainer5() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -996,7 +1006,7 @@ function DataType3Group5() {
 
 function Row5() {
   return (
-    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[18px] relative shrink-0 text-[#5b6780] text-[12px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
+    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[20px] relative shrink-0 text-[#5b6780] text-[14px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
       <p className="relative shrink-0">Beginner</p>
       <DataType2Group5 />
       <DataType3Group5 />
@@ -1097,7 +1107,7 @@ function RelatedSearches() {
           className="bg-white border border-[#dae1ed] border-solid content-stretch flex gap-[4px] items-center justify-center px-[12px] py-[6px] relative rounded-[8px] shrink-0"
           data-name="Prompt"
         >
-          <div className="flex flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[13px] text-[#5b6780] whitespace-nowrap">
+          <div className="flex flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[14px] text-[#5b6780] whitespace-nowrap">
             <p className="leading-[19.5px]">{label}</p>
           </div>
         </div>
@@ -1141,7 +1151,7 @@ function ImageWrapper6() {
 function Title6() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[22px] min-h-px min-w-px relative text-[#0f1114] text-[15px] tracking-[-0.03px]">Generative AI for Executives</p>
+      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] min-h-px min-w-px relative text-[#0f1114] text-[16px] tracking-[-0.048px]">Generative AI for Executives</p>
     </div>
   );
 }
@@ -1154,7 +1164,7 @@ function Header6() {
           <div aria-hidden="true" className="absolute border-[#dae1ed] border-[0.891px] border-solid inset-0 pointer-events-none rounded-[2px]" />
           <ImageWrapper6 />
         </div>
-        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[16px] min-h-px min-w-px relative text-[#5b6780] text-[11px]">IBM</p>
+        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] min-h-px min-w-px relative text-[#5b6780] text-[14px]">IBM</p>
       </div>
       <Title6 />
     </div>
@@ -1171,10 +1181,10 @@ function RatingStatContainer6() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -1200,7 +1210,7 @@ function DataType3Group6() {
 
 function Row6() {
   return (
-    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[18px] relative shrink-0 text-[#5b6780] text-[12px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
+    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[20px] relative shrink-0 text-[#5b6780] text-[14px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
       <p className="relative shrink-0">Beginner</p>
       <DataType2Group6 />
       <DataType3Group6 />
@@ -1305,7 +1315,7 @@ function ImageWrapper7() {
 function Title7() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[22px] min-h-px min-w-px relative text-[#0f1114] text-[15px] tracking-[-0.03px]">Generative AI for Software Developers</p>
+      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] min-h-px min-w-px relative text-[#0f1114] text-[16px] tracking-[-0.048px]">Generative AI for Software Developers</p>
     </div>
   );
 }
@@ -1318,7 +1328,7 @@ function Header7() {
           <div aria-hidden="true" className="absolute border-[#dae1ed] border-[0.891px] border-solid inset-0 pointer-events-none rounded-[2px]" />
           <ImageWrapper7 />
         </div>
-        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[16px] min-h-px min-w-px relative text-[#5b6780] text-[11px]">IBM</p>
+        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] min-h-px min-w-px relative text-[#5b6780] text-[14px]">IBM</p>
       </div>
       <Title7 />
     </div>
@@ -1335,10 +1345,10 @@ function RatingStatContainer7() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -1364,7 +1374,7 @@ function DataType3Group7() {
 
 function Row7() {
   return (
-    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[18px] relative shrink-0 text-[#5b6780] text-[12px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
+    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[20px] relative shrink-0 text-[#5b6780] text-[14px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
       <p className="relative shrink-0">Beginner</p>
       <DataType2Group7 />
       <DataType3Group7 />
@@ -1469,7 +1479,7 @@ function ImageWrapper8() {
 function Title8() {
   return (
     <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[22px] min-h-px min-w-px relative text-[#0f1114] text-[15px] tracking-[-0.03px]">Generative AI for Content Creation</p>
+      <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] min-h-px min-w-px relative text-[#0f1114] text-[16px] tracking-[-0.048px]">Generative AI for Content Creation</p>
     </div>
   );
 }
@@ -1482,7 +1492,7 @@ function Header8() {
           <div aria-hidden="true" className="absolute border-[#dae1ed] border-[0.891px] border-solid inset-0 pointer-events-none rounded-[2px]" />
           <ImageWrapper8 />
         </div>
-        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[16px] min-h-px min-w-px relative text-[#5b6780] text-[11px]">Adobe</p>
+        <p className="flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] min-h-px min-w-px relative text-[#5b6780] text-[14px]">Adobe</p>
       </div>
       <Title8 />
     </div>
@@ -1499,10 +1509,10 @@ function RatingStatContainer8() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -1528,7 +1538,7 @@ function DataType3Group8() {
 
 function Row8() {
   return (
-    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[18px] relative shrink-0 text-[#5b6780] text-[12px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
+    <div className="content-center flex flex-wrap font-['Source_Sans_3',sans-serif] font-normal gap-[4px] items-center leading-[20px] relative shrink-0 text-[#5b6780] text-[14px] w-full min-w-0 whitespace-nowrap" data-name="Row 1">
       <p className="relative shrink-0">Beginner</p>
       <DataType2Group8 />
       <DataType3Group8 />
@@ -1626,7 +1636,7 @@ function PmRelatedSearches() {
           className="bg-white border border-[#dae1ed] border-solid content-stretch flex gap-[4px] items-center justify-center px-[12px] py-[6px] relative rounded-[8px] shrink-0"
           data-name="Prompt"
         >
-          <div className="flex flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[13px] text-[#5b6780] whitespace-nowrap">
+          <div className="flex flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[13px] text-[#0f1114] whitespace-nowrap">
             <p className="leading-[19.5px]">{label}</p>
           </div>
         </div>
@@ -1671,7 +1681,7 @@ function PmTagsSection({
   showAiSkillsTag?: boolean;
   description?: string;
 }) {
-  if (matchPercent == null && !showAiSkillsTag && !description) return null;
+  if (matchPercent == null && !showAiSkillsTag) return null;
   return (
     <div
       className="content-start flex flex-wrap gap-[4px] items-start relative shrink-0 w-full min-w-0"
@@ -1679,10 +1689,10 @@ function PmTagsSection({
     >
       {matchPercent != null ? (
         <div
-          className="content-stretch flex h-[18px] shrink-0 items-center justify-center gap-[2px] rounded-[80px] bg-gradient-to-r from-[#d65d00] to-[#9c1a84] px-[4px] pt-[2px] pb-0"
+          className="content-stretch flex h-[18px] shrink-0 items-center justify-center gap-[2px] rounded-[80px] bg-gradient-to-r from-[#6923de] to-[#3587fc] px-[6px] pt-[2px] pb-0"
           data-name="Tag"
         >
-          <p className="font-['Source_Sans_3'] font-semibold leading-[14.278px] text-[9.519px] text-white whitespace-nowrap">
+          <p className="font-sans font-semibold leading-[14.278px] text-[9.519px] text-white whitespace-nowrap">
             {matchPercent}% match
           </p>
         </div>
@@ -1692,13 +1702,13 @@ function PmTagsSection({
           className="content-stretch flex h-[18px] shrink-0 items-center justify-center rounded-[800px] border-[0.793px] border-solid border-[#dae1ed] bg-white px-[4px]"
           data-name="Tag"
         >
-          <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[14.278px] text-[9.519px] text-[#5b6780] whitespace-nowrap">
+          <p className="font-sans font-normal leading-[14.278px] text-[9.519px] text-[#5b6780] whitespace-nowrap">
             AI Skills
           </p>
         </div>
       ) : null}
-      {description ? (
-        <p className="w-full min-w-0 basis-full font-['Source_Sans_3',sans-serif] font-normal leading-[18px] text-[12px] text-[#5b6780]">
+      {matchPercent != null && description ? (
+        <p className="w-full min-w-0 basis-full font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[14px] text-[#5b6780]">
           {description}
         </p>
       ) : null}
@@ -1737,10 +1747,10 @@ function PmRatingRow() {
           </svg>
         </div>
       </div>
-      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[12px] text-[#0f1114] whitespace-nowrap">
-        <span className="leading-[18px]">4.9</span>
-        <span className="leading-[18px]">{` · `}</span>
-        <span className="leading-[18px]">3.4k reviews</span>
+      <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[0] relative shrink-0 text-[0px] text-[#5b6780] whitespace-nowrap">
+        <span className="text-[14px] leading-[20px] text-[#0f1114]">4.9</span>
+        <span className="text-[14px] leading-[20px]">{` · `}</span>
+        <span className="text-[14px] leading-[20px] text-[#5b6780]">3.4k reviews</span>
       </p>
     </div>
   );
@@ -1795,12 +1805,12 @@ function PmProductCard({
                   <div aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[2px] border-[#dae1ed] border-[0.891px] border-solid" />
                   <PmPartnerMark logo={logo} partnerInitial={partnerInitial} partner={partner} />
                 </div>
-                <p className="min-h-px min-w-px flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[17.813px] text-[12.47px] text-[#5b6780]">
+                <p className="min-h-px min-w-px flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[14px] text-[#5b6780]">
                   {partner}
                 </p>
               </div>
               <div className="content-stretch flex items-start justify-between relative shrink-0 w-full" data-name="_💠 Title">
-                <p className="min-h-px min-w-px flex-[1_0_0] font-['Source_Sans_3'] font-semibold leading-[17.813px] text-[14.25px] tracking-[-0.0428px] text-[#0f1114]">
+                <p className="min-h-px min-w-px flex-[1_0_0] font-['Source_Sans_3',sans-serif] font-semibold leading-[20px] text-[16px] tracking-[-0.048px] text-[#0f1114]">
                   {title}
                 </p>
               </div>
@@ -1816,7 +1826,7 @@ function PmProductCard({
                   <PmRatingRow />
                 </div>
                 <div className="content-stretch flex flex-col items-start justify-center relative shrink-0 w-full" data-name="_💠 Metadata">
-                  <p className="content-center flex min-w-0 w-full flex-wrap items-center gap-[4px] font-['Source_Sans_3',sans-serif] font-normal text-[10.688px] leading-[16.031px] text-[#5b6780] whitespace-pre-wrap">
+                  <p className="content-center flex min-w-0 w-full flex-wrap items-center gap-[4px] font-['Source_Sans_3',sans-serif] font-normal text-[14px] leading-[20px] text-[#5b6780] whitespace-pre-wrap">
                     {meta}
                   </p>
                 </div>
@@ -1831,75 +1841,6 @@ function PmProductCard({
 }
 
 type ComparisonMenuAction = "more" | "explore" | "remove";
-
-/**
- * Figma 2163:34106 — selected course chips above the composer.
- * Shown when the user has confirmed their role and results are in a state where course selection applies:
- * default SERP grid, or personalized results after PM refresh (pm_results).
- */
-function ComposerSelectedCoursesAttachment({
-  courses,
-  onRemove,
-}: {
-  courses: ResolvedSerpCourse[];
-  onRemove: (id: string) => void;
-}) {
-  if (courses.length === 0) return null;
-  return (
-    <div className="flex w-full min-w-0 flex-col gap-2" data-name="Composer selected courses">
-      <div className="grid w-full min-w-0 grid-cols-2 gap-2">
-        {courses.map((c) => (
-          <div
-            key={c.id}
-            className="flex h-[26px] min-h-[26px] max-h-[26px] min-w-0 w-full items-center gap-1 rounded-md border border-[#dae1ed] bg-white px-0.5 py-[3px]"
-            data-name="Selected course chip"
-          >
-            <img alt="" className="size-[22px] shrink-0 rounded-[6px] object-cover" src={c.thumb} />
-            <p className="min-w-0 flex-1 truncate font-['Source_Sans_3',sans-serif] text-[11px] leading-[22px] text-[#0f1114]">
-              {c.title}
-            </p>
-            <button
-              type="button"
-              className="flex size-[22px] shrink-0 cursor-pointer items-center justify-center rounded text-[#5b6780] transition-colors hover:bg-[#f2f5fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
-              aria-label={`Remove ${c.title}`}
-              onClick={() => onRemove(c.id)}
-            >
-              <img alt="" className="size-3 object-contain opacity-70" src={actionsClose} aria-hidden />
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-const SINGLE_COURSE_FOLLOW_UP_PILLS = [
-  "What skills will I gain?",
-  "What tools will I use?",
-  "Compare to similar courses",
-] as const;
-
-function SingleCourseFollowUpPills({ onSelect }: { onSelect: (label: string) => void }) {
-  return (
-    <div className="content-stretch flex flex-col items-start relative shrink-0 w-full" data-name="Follow up prompts (single course)">
-      <div className="flex flex-wrap gap-[8px] items-center relative shrink-0 w-full" data-name="prompts">
-        {SINGLE_COURSE_FOLLOW_UP_PILLS.map((label) => (
-          <button
-            key={label}
-            type="button"
-            className="bg-white border border-[#dae1ed] border-solid flex gap-[4px] items-center justify-center px-[12px] py-[6px] relative rounded-[8px] shrink-0 font-inherit cursor-pointer text-left transition-colors duration-150 hover:bg-[#f8fafc]"
-            data-name="Prompt - Single Select"
-            onClick={() => onSelect(label)}
-          >
-            <span className="font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[14px] text-[#5b6780] whitespace-nowrap">
-              {label}
-            </span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function CompareSelectedCoursesPill({
   onClick,
@@ -1918,7 +1859,7 @@ function CompareSelectedCoursesPill({
         data-name="Prompt - Compare"
         onClick={onClick}
       >
-        <span className="font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[14px] text-[#5b6780] min-w-0">
+        <span className="font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[14px] text-[rgba(15,17,20,1)] min-w-0">
           {label}
         </span>
       </button>
@@ -1927,15 +1868,22 @@ function CompareSelectedCoursesPill({
 }
 
 /** Figma 1971:51712 — comparison card skeleton (loading state). */
-function CompareCourseColumnSkeleton({ columnCount = 3 }: { columnCount?: number }) {
+function CompareCourseColumnSkeleton({
+  columnCount = 3,
+  courseId,
+}: {
+  columnCount?: number;
+  /** Enables navigation to product details while the column is still loading. */
+  courseId: string;
+}) {
   const pulse = "animate-pulse";
   return (
-    <div
-      className="flex min-h-0 min-w-0 w-full flex-col gap-3"
-      data-name="Product cards - compare skeleton"
-      aria-hidden
-    >
-      <div className="flex w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#dae1ed] bg-white">
+    <div className="flex min-h-0 min-w-0 w-full flex-col gap-3" data-name="Product cards - compare skeleton">
+      <Link
+        to={ROUTES.product(courseId)}
+        className="flex w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-[#dae1ed] bg-white text-inherit no-underline outline-none transition-shadow hover:shadow-[0_10px_32px_rgba(54,64,81,0.12)] focus-visible:ring-2 focus-visible:ring-[#0056d2] focus-visible:ring-offset-2"
+        aria-label="Open course details"
+      >
         <div className="flex flex-col p-2">
           <div className="relative aspect-[380/212] w-full shrink-0 overflow-hidden rounded-lg">
             <div
@@ -1953,44 +1901,44 @@ function CompareCourseColumnSkeleton({ columnCount = 3 }: { columnCount?: number
             </div>
             <div className="flex flex-wrap gap-1">
               <div
-                className="flex h-[22px] w-[78px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#6923de] to-[#3587fc]"
+                className="flex h-5 w-[78px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#6923de] to-[#3587fc]"
                 aria-hidden
               />
-              <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full border-[1.19px] border-[#dae1ed] bg-white px-2 py-1">
+              <div className="flex h-5 shrink-0 items-center justify-center rounded-full border-[1.19px] border-[#dae1ed] bg-white px-2 py-1">
                 <div className={`h-2 w-[52px] rounded bg-[#e8eef7] ${pulse}`} />
               </div>
-              <div className="flex h-[22px] w-[107px] shrink-0 items-center justify-center rounded-full border-[1.19px] border-[#dae1ed] bg-white px-2 py-1">
+              <div className="flex h-5 w-[107px] shrink-0 items-center justify-center rounded-full border-[1.19px] border-[#dae1ed] bg-white px-2 py-1">
                 <div className={`h-2 w-[91px] rounded bg-[#e8eef7] ${pulse}`} />
               </div>
             </div>
             <div className="flex flex-col gap-1">
-              <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
-              <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
-              <div className={`h-3 w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-[14px] w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-[14px] w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-[14px] w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
             </div>
           </div>
           <div className="bg-[#f2f5fa] px-3 py-[15px]">
-            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+            <div className={`h-[14px] w-full rounded bg-[#e8eef7] ${pulse}`} />
           </div>
           <div className="px-3 py-[15px]">
-            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+            <div className={`h-[14px] w-full rounded bg-[#e8eef7] ${pulse}`} />
           </div>
           <div className="flex flex-col gap-1 bg-[#f2f5fa] px-3 py-4">
-            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
-            <div className={`h-3 w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
+            <div className={`h-[14px] w-full rounded bg-[#e8eef7] ${pulse}`} />
+            <div className={`h-[14px] w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
           </div>
           <div className="px-3 py-[15px]">
-            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+            <div className={`h-[14px] w-full rounded bg-[#e8eef7] ${pulse}`} />
           </div>
           <div className="bg-[#f2f5fa] px-3 py-[15px]">
-            <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
+            <div className={`h-[14px] w-full rounded bg-[#e8eef7] ${pulse}`} />
           </div>
           <div className="flex flex-col gap-2.5 px-3 py-[17px]">
-            <div className={`h-3 w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
+            <div className={`h-[14px] w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
             <div className="flex flex-col gap-1">
-              <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
-              <div className={`h-3 w-full rounded bg-[#e8eef7] ${pulse}`} />
-              <div className={`h-3 w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-[14px] w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-[14px] w-full rounded bg-[#e8eef7] ${pulse}`} />
+              <div className={`h-[14px] w-[210px] max-w-full rounded bg-[#e8eef7] ${pulse}`} />
             </div>
           </div>
         </div>
@@ -2012,7 +1960,7 @@ function CompareCourseColumnSkeleton({ columnCount = 3 }: { columnCount?: number
             data-name="Button skeleton"
           />
         </div>
-      </div>
+      </Link>
     </div>
   );
 }
@@ -2041,7 +1989,6 @@ function CompareCourseColumn({
   canExploreAlternatives,
   onMenuAction,
   showUpdatedBadge,
-  onOpenProduct,
 }: {
   course: CompareCourseDetail;
   registerRowRef: (key: CompareSyncRowKey) => (el: HTMLElement | null) => void;
@@ -2051,8 +1998,8 @@ function CompareCourseColumn({
   onMenuAction: (action: ComparisonMenuAction) => void;
   /** Shown after this course was swapped in via “Explore alternative” (not “More like this”). */
   showUpdatedBadge: boolean;
-  onOpenProduct?: () => void;
 }) {
+  const navigate = useNavigate();
   const {
     thumb,
     partner,
@@ -2071,24 +2018,24 @@ function CompareCourseColumn({
   const rh = rowMinHeights;
   const reg = registerRowRef;
 
+  const goToProduct = useCallback(() => {
+    navigate(ROUTES.product(course.id));
+  }, [course.id, navigate]);
+
   return (
     <div className="flex min-h-0 min-w-0 w-full flex-col gap-3" data-name="Product cards - compare">
       <div
-        className="flex w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#dae1ed] bg-white"
+        className="flex w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-2xl border border-[#dae1ed] bg-white transition-shadow hover:shadow-[0_10px_32px_rgba(54,64,81,0.12)]"
         data-name="ProductCard - compare"
-        role={onOpenProduct ? "link" : undefined}
-        tabIndex={onOpenProduct ? 0 : undefined}
-        onClick={() => onOpenProduct?.()}
-        onKeyDown={
-          onOpenProduct
-            ? (e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onOpenProduct();
-                }
-              }
-            : undefined
-        }
+        role="link"
+        tabIndex={0}
+        onClick={goToProduct}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            goToProduct();
+          }
+        }}
       >
         <div className="flex flex-col p-2" data-name="Image Area">
           <div className="group/card relative isolate aspect-[380/212] w-full shrink-0 overflow-hidden rounded-lg">
@@ -2109,12 +2056,18 @@ function CompareCourseColumn({
                 Updated
               </div>
             ) : null}
-            <div className="absolute right-3 top-3 z-[2] opacity-0 transition-opacity group-hover/card:opacity-100 group-focus-within/card:opacity-100 has-[button[data-state=open]]:opacity-100">
+            <div
+              className="absolute right-3 top-3 z-[2] opacity-0 transition-opacity group-hover/card:opacity-100 group-focus-within/card:opacity-100 has-[button[data-state=open]]:opacity-100"
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+            >
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
                     onClick={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
                     className="pointer-events-auto flex size-9 items-center justify-center rounded-lg text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/80"
                     aria-label="Course menu"
                   >
@@ -2126,27 +2079,39 @@ function CompareCourseColumn({
                   align="end"
                   sideOffset={8}
                   className="min-w-[175px] rounded-xl border border-[#e8eef7] bg-white p-2 shadow-[0px_0px_4px_0px_#e8eef7,0px_4px_12px_4px_rgba(54,64,81,0.08)]"
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
                 >
-                  {columnCount < MAX_SELECTED_COURSES ? (
-                    <DropdownMenuItem
-                      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa]"
-                      onSelect={() => onMenuAction("more")}
-                    >
-                      <span>More like this</span>
-                      <img alt="" className="size-5 shrink-0 object-contain" src={sparkleIcon} aria-hidden />
-                    </DropdownMenuItem>
-                  ) : null}
+                  <DropdownMenuItem
+                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa] data-[disabled]:pointer-events-none data-[disabled]:opacity-40"
+                    disabled={columnCount >= MAX_SELECTED_COURSES}
+                    onSelect={(e) => {
+                      e.stopPropagation();
+                      if (columnCount >= MAX_SELECTED_COURSES) return;
+                      onMenuAction("more");
+                    }}
+                  >
+                    <span>More like this</span>
+                    <img alt="" className="size-5 shrink-0 object-contain" src={sparkleIcon} aria-hidden />
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa] data-[disabled]:pointer-events-none data-[disabled]:opacity-40"
                     disabled={!canExploreAlternatives}
-                    onSelect={() => onMenuAction("explore")}
+                    onSelect={(e) => {
+                      e.stopPropagation();
+                      if (!canExploreAlternatives) return;
+                      onMenuAction("explore");
+                    }}
                   >
-                    <span>Explore alternative</span>
+                    <span>Explore alternatives</span>
                     <img alt="" className="size-5 shrink-0 object-contain" src={reloadIcon} aria-hidden />
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2 font-['Source_Sans_3',sans-serif] text-[14px] text-[#0f1114] focus:bg-[#f2f5fa] data-[highlighted]:text-[#0f1114]"
-                    onSelect={() => onMenuAction("remove")}
+                    onSelect={(e) => {
+                      e.stopPropagation();
+                      onMenuAction("remove");
+                    }}
                   >
                     <span>Remove</span>
                     <Trash2 className="size-5 shrink-0 text-[#5b6780]" aria-hidden />
@@ -2185,14 +2150,14 @@ function CompareCourseColumn({
               className="flex flex-wrap content-start items-start gap-1 py-1"
               data-name="Pills"
             >
-              <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#6923de] to-[#3587fc] px-[7px]">
-                <span className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[13px] font-semibold leading-[22px] text-white">
+              <div className="flex h-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#6923de] to-[#3587fc] px-[7px]">
+                <span className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[14px] font-semibold leading-[20px] tracking-[1px] text-white">
                   {matchPct}% match
                 </span>
               </div>
               {showAiSkillsTag ? (
-                <div className="flex h-[22px] shrink-0 items-center justify-center rounded-full border-[1.19px] border-[#dae1ed] bg-white px-2 py-1">
-                  <span className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[13px] font-normal leading-[22px] text-[#5b6780]">
+                <div className="flex h-5 shrink-0 items-center justify-center rounded-full border-[1.19px] border-[#dae1ed] bg-white px-2 py-1">
+                  <span className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[14px] font-normal leading-[20px] text-[#5b6780]">
                     AI Skills
                   </span>
                 </div>
@@ -2204,7 +2169,7 @@ function CompareCourseColumn({
               className="w-full min-w-0"
             >
               {description ? (
-                <p className="line-clamp-5 font-['Source_Sans_3',sans-serif] text-[12px] font-normal leading-[18px] text-[#0f1114]">
+                <p className="line-clamp-5 font-['Source_Sans_3',sans-serif] text-[14px] font-normal leading-[20px] text-[#0f1114]">
                   {description}
                 </p>
               ) : null}
@@ -2217,7 +2182,7 @@ function CompareCourseColumn({
             className="bg-[#f2f5fa] p-3"
             data-name="Type"
           >
-            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+            <p className="font-['Source_Sans_3',sans-serif] text-[14px] leading-[20px] text-[#0f1114]">
               <span className="font-bold">Product type: </span>
               <span className="font-normal">{productTypeLine}</span>
             </p>
@@ -2228,7 +2193,7 @@ function CompareCourseColumn({
             className="p-3"
             data-name="Level"
           >
-            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+            <p className="font-['Source_Sans_3',sans-serif] text-[14px] leading-[20px] text-[#0f1114]">
               <span className="font-bold">Level: </span>
               <span className="font-normal">{levelLine}</span>
             </p>
@@ -2239,7 +2204,7 @@ function CompareCourseColumn({
             className="bg-[#f2f5fa] p-3"
             data-name="Skills"
           >
-            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+            <p className="font-['Source_Sans_3',sans-serif] text-[14px] leading-[20px] text-[#0f1114]">
               <span className="font-bold">Skills: </span>
               <span className="font-normal">{skillsLine}</span>
             </p>
@@ -2250,7 +2215,7 @@ function CompareCourseColumn({
             className="p-3"
             data-name="Tools"
           >
-            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+            <p className="font-['Source_Sans_3',sans-serif] text-[14px] leading-[20px] text-[#0f1114]">
               <span className="font-bold">Tools: </span>
               <span className="font-normal">{toolsLine}</span>
             </p>
@@ -2261,7 +2226,7 @@ function CompareCourseColumn({
             className="bg-[#f2f5fa] p-3"
             data-name="HOL"
           >
-            <p className="font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+            <p className="font-['Source_Sans_3',sans-serif] text-[14px] leading-[20px] text-[#0f1114]">
               <span className="font-bold">Hands-on learning: </span>
               <span className="font-normal">{handsOnLine}</span>
             </p>
@@ -2272,7 +2237,7 @@ function CompareCourseColumn({
             className="flex flex-col gap-1 p-3"
             data-name="Reviews"
           >
-            <p className="min-w-full font-['Source_Sans_3',sans-serif] text-[12px] leading-[18px] text-[#0f1114]">
+            <p className="min-w-full font-['Source_Sans_3',sans-serif] text-[14px] leading-[20px] text-[#0f1114]">
               <span className="font-bold">Summary: </span>
               <span className="font-normal">{summaryLine}</span>
             </p>
@@ -2316,7 +2281,6 @@ function CourseComparisonView({
   loadingColumnIndexes,
   onComparisonMenuAction,
   exploreUpdatedCourseIds,
-  onOpenProductCourse,
 }: {
   courses: ResolvedSerpCourse[];
   onBack: () => void;
@@ -2325,7 +2289,6 @@ function CourseComparisonView({
   onComparisonMenuAction: (action: ComparisonMenuAction, columnIndex: number) => void;
   /** Course IDs that should show the “Updated” thumbnail badge (explore swap only). */
   exploreUpdatedCourseIds: ReadonlySet<string>;
-  onOpenProductCourse?: (id: string) => void;
 }) {
   const courseKey = useMemo(() => courses.map((c) => c.id).join("|"), [courses]);
   const rows = useMemo(
@@ -2430,7 +2393,7 @@ function CourseComparisonView({
         {compareColumnsReady
           ? rows.map((c, i) =>
               loadingColumnIndexes.has(i) ? (
-                <CompareCourseColumnSkeleton key={`sk-col-${i}-${c.id}`} columnCount={n} />
+                <CompareCourseColumnSkeleton key={`sk-col-${i}-${c.id}`} columnCount={n} courseId={c.id} />
               ) : (
                 <CompareCourseColumn
                   key={c.id}
@@ -2439,7 +2402,6 @@ function CourseComparisonView({
                   canExploreAlternatives={canExploreAtIndex[i] ?? false}
                   onMenuAction={(action) => onComparisonMenuAction(action, i)}
                   showUpdatedBadge={exploreUpdatedCourseIds.has(c.id)}
-                  onOpenProduct={onOpenProductCourse ? () => onOpenProductCourse(c.id) : undefined}
                   registerRowRef={(key) => (el) => {
                     const slot = compareRowRefs.current[key] ?? (compareRowRefs.current[key] = []);
                     slot[i] = el;
@@ -2448,8 +2410,8 @@ function CourseComparisonView({
                 />
               ),
             )
-          : Array.from({ length: n }, (_, i) => (
-              <CompareCourseColumnSkeleton key={`sk-${i}`} columnCount={n} />
+          : rows.map((c, i) => (
+              <CompareCourseColumnSkeleton key={`sk-init-${i}-${c.id}`} columnCount={n} courseId={c.id} />
             ))}
       </div>
     </div>
@@ -2630,35 +2592,6 @@ function RecommendationStatus({ recommendationsReady }: { recommendationsReady: 
   );
 }
 
-const aiMessageActionBtnClass =
-  "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent p-0 text-[#6d7c99] transition-colors hover:bg-[#f2f5fa] hover:text-[#0f1114] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]";
-
-/** AI assistant reply toolbar: thumbs, copy, regenerate, more (Figma Actions / message feedback row). */
-function Actions() {
-  return (
-    <div
-      className="content-stretch flex flex-wrap gap-0 items-center min-h-[32px] pt-2 relative shrink-0"
-      data-name="Actions"
-    >
-      <button type="button" className={aiMessageActionBtnClass} aria-label="Helpful response" data-name="toggles/ThumbsUp">
-        <img alt="" src={actionsThumbsUp} className="size-4 shrink-0 object-contain" aria-hidden />
-      </button>
-      <button type="button" className={aiMessageActionBtnClass} aria-label="Not helpful" data-name="toggles/ThumbsDown">
-        <img alt="" src={actionsThumbsDown} className="size-4 shrink-0 object-contain" aria-hidden />
-      </button>
-      <button type="button" className={aiMessageActionBtnClass} aria-label="Copy response" data-name="actions/Copy">
-        <img alt="" src={actionsCopy} className="size-4 shrink-0 object-contain" aria-hidden />
-      </button>
-      <button type="button" className={aiMessageActionBtnClass} aria-label="Regenerate response" data-name="actions/Reload">
-        <img alt="" src={actionsReload} className="size-4 shrink-0 object-contain" aria-hidden />
-      </button>
-      <button type="button" className={aiMessageActionBtnClass} aria-label="More actions" data-name="actions/More">
-        <img alt="" src={actionsMore} className="size-4 shrink-0 object-contain" aria-hidden />
-      </button>
-    </div>
-  );
-}
-
 const PRODUCT_MANAGER_TITLE = "Product Manager";
 
 /** Segments for opening assistant typewriter — `bold` applies as those characters stream in. */
@@ -2673,75 +2606,227 @@ To recommend the best fit, `,
 
 const FIRST_AI_RESPONSE_PLAINTEXT = FIRST_AI_SEGMENTS.map((s) => s.text).join("");
 
-/** Segments for PM follow-up typewriter — bold phrases match the final list styling. */
-const PM_AI_SEGMENTS = [
-  { text: "As a Product Manager, Generative AI can immediately help you with:\n\n" },
-  { text: "• Writing clearer " },
-  { text: "PRDs and specs", bold: true },
-  { text: "\n• Synthesizing " },
-  { text: "user research and feedback", bold: true },
-  { text: "\n• Generating " },
-  { text: "roadmap options", bold: true },
-  { text: "\n• Drafting " },
-  { text: "stakeholder updates", bold: true },
-  { text: "\n\nI'll focus on short, practical lessons with reusable prompt frameworks you can apply right away." },
-] as const;
-
-const PRODUCT_MANAGER_AI_PLAINTEXT = PM_AI_SEGMENTS.map((s) => s.text).join("");
-
 const REFINE_RECOMMENDATIONS_QUESTION =
   "Would you like me to refine these recommendations further?";
-
-const AI_TYPEWRITER_INITIAL_DELAY_MS = 200;
-const AI_TYPE_MS_PER_STEP = 12;
-const AI_CHARS_PER_STEP = 3;
 
 /** Main SERP skeleton + chat “Updating recommendations…” duration after PM assistant completes. */
 const PM_RECOMMENDATIONS_REFRESH_MS = 2600;
 
-const AI_TYPING_BOLD_CLASS = "font-['Source_Sans_3',sans-serif] font-bold leading-[21px]";
+/** PM assistant — same copy as former PM_AI_SEGMENTS, without `•` chars (markers come from `<ul>`). */
+const PM_ASSISTANT_INTRO = "As a Product Manager, Generative AI can immediately help you with:";
+const PM_ASSISTANT_ITEMS: readonly { prefix: string; bold: string }[] = [
+  { prefix: "Writing clearer ", bold: "PRDs and specs" },
+  { prefix: "Synthesizing ", bold: "user research and feedback" },
+  { prefix: "Generating ", bold: "roadmap options" },
+  { prefix: "Drafting ", bold: "stakeholder updates" },
+];
+const PM_ASSISTANT_OUTRO =
+  "I'll focus on short, practical lessons with reusable prompt frameworks you can apply right away.";
 
-function AiResponseTypingBlock({
-  segments,
-  typedLen,
-}: {
-  segments: readonly { text: string; bold?: boolean }[];
-  typedLen: number;
-}) {
-  let remaining = typedLen;
-  const parts: ReactNode[] = [];
-  let partKey = 0;
-  for (const seg of segments) {
-    if (remaining <= 0) break;
-    const take = Math.min(seg.text.length, remaining);
-    if (take > 0) {
-      const chunk = seg.text.slice(0, take);
-      parts.push(
-        seg.bold ? (
-          <span key={partKey} className={AI_TYPING_BOLD_CLASS}>
-            {chunk}
-          </span>
-        ) : (
-          <span key={partKey}>{chunk}</span>
-        ),
-      );
-      partKey += 1;
-      remaining -= take;
-    }
+function pmAssistantTypingTotalLen(): number {
+  const itemsLen = PM_ASSISTANT_ITEMS.reduce((a, it) => a + it.prefix.length + it.bold.length, 0);
+  return PM_ASSISTANT_INTRO.length + itemsLen + PM_ASSISTANT_OUTRO.length;
+}
+
+function PmAssistantMainBody({ typedLen, showCaret }: { typedLen: number; showCaret: boolean }) {
+  const total = pmAssistantTypingTotalLen();
+  const introEnd = PM_ASSISTANT_INTRO.length;
+  const itemLens = PM_ASSISTANT_ITEMS.map((it) => it.prefix.length + it.bold.length);
+  const itemStarts: number[] = [];
+  let acc = introEnd;
+  for (const L of itemLens) {
+    itemStarts.push(acc);
+    acc += L;
   }
+  const outroStart = acc;
+
+  const intro = PM_ASSISTANT_INTRO.slice(0, Math.min(typedLen, introEnd));
+  const caretInIntro = showCaret && typedLen < total && typedLen <= introEnd;
+
+  const listItems = PM_ASSISTANT_ITEMS.map((def, i) => {
+    const start = itemStarts[i];
+    if (typedLen <= start) return null;
+    const take = Math.min(typedLen - start, itemLens[i]);
+    let rest = take;
+    const pt = Math.min(rest, def.prefix.length);
+    rest -= pt;
+    const bt = Math.min(rest, def.bold.length);
+    const prefix = def.prefix.slice(0, pt);
+    const bold = def.bold.slice(0, bt);
+    const liCls = i < PM_ASSISTANT_ITEMS.length - 1 ? "mb-0 ms-[24px]" : "ms-[24px]";
+    const endItem = start + itemLens[i];
+    const caretHere = showCaret && typedLen < total && typedLen > start && typedLen <= endItem;
+    return (
+      <li key={i} className={liCls}>
+        <span className="leading-[21px]">{prefix}</span>
+        {bold ? <span className={AI_TYPING_BOLD_CLASS}>{bold}</span> : null}
+        {caretHere ? <TypingCaretInline /> : null}
+      </li>
+    );
+  });
+
+  const outro = PM_ASSISTANT_OUTRO.slice(0, Math.min(Math.max(typedLen - outroStart, 0), PM_ASSISTANT_OUTRO.length));
+  const caretInOutro = showCaret && typedLen < total && typedLen >= outroStart;
 
   return (
-    <div className="relative shrink-0 w-full" data-name="Individual chat inputs">
-      <div className="content-stretch flex flex-col gap-[8px] items-start px-[16px] relative w-full">
-        <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[21px] min-w-0 w-full max-w-full text-[14px] text-[#0f1114] whitespace-pre-wrap">
-          {parts}
-          <span
-            className="inline-block w-px h-[14px] ml-0.5 bg-[#0f1114] animate-pulse"
-            style={{ verticalAlign: "-0.15em" }}
-            aria-hidden="true"
-          />
-        </p>
-      </div>
+    <div className={AI_MESSAGE_BODY_CLASS}>
+      <p className="mb-0 whitespace-pre-wrap leading-[21px]">
+        {intro}
+        {caretInIntro ? <TypingCaretInline /> : null}
+      </p>
+      <ul className="mb-0 list-disc">{listItems}</ul>
+      <p className="mb-0 whitespace-pre-wrap leading-[21px]">&nbsp;</p>
+      <p className="whitespace-pre-wrap leading-[21px]">
+        {outro}
+        {caretInOutro ? <TypingCaretInline /> : null}
+      </p>
+    </div>
+  );
+}
+
+const COMPARE_KEY_INTRO = "Key differences:";
+const COMPARE_QUESTION = "Do you have any questions?";
+
+function compareTypingTotalLen(details: CompareCourseDetail[]): number {
+  if (details.length === 0) return 0;
+  let n = COMPARE_KEY_INTRO.length;
+  details.forEach((d, i) => {
+    n += d.title.length + 1 + compareDifferenceLine(d, i).length;
+  });
+  n += COMPARE_QUESTION.length;
+  return n;
+}
+
+function sliceCompareCoursesTyping(details: CompareCourseDetail[], typedLen: number) {
+  let r = typedLen;
+  const introTake = Math.min(r, COMPARE_KEY_INTRO.length);
+  r -= introTake;
+  const items = details.map((d, i) => {
+    const title = d.title;
+    const tail = ` ${compareDifferenceLine(d, i)}`;
+    const itemLen = title.length + tail.length;
+    const itemBudget = Math.min(r, itemLen);
+    r -= itemBudget;
+    let rest = itemBudget;
+    const titleTake = Math.min(rest, title.length);
+    rest -= titleTake;
+    const tailTake = Math.min(rest, tail.length);
+    return {
+      id: d.id,
+      titleVis: title.slice(0, titleTake),
+      tailVis: tail.slice(0, tailTake),
+      itemLen,
+      itemBudget,
+    };
+  });
+  const questionTake = Math.min(r, COMPARE_QUESTION.length);
+  return { introTake, items, questionTake };
+}
+
+function CompareCoursesAiBody({
+  details,
+  typedLen,
+  showCaret,
+}: {
+  details: CompareCourseDetail[];
+  typedLen: number;
+  showCaret: boolean;
+}) {
+  const total = compareTypingTotalLen(details);
+  const introEnd = COMPARE_KEY_INTRO.length;
+  const { introTake, items, questionTake } = sliceCompareCoursesTyping(details, typedLen);
+  const intro = COMPARE_KEY_INTRO.slice(0, introTake);
+  const caretInIntro = showCaret && typedLen < total && typedLen <= introEnd;
+
+  let offset = introEnd;
+  const listItems = details.map((d, i) => {
+    const row = items[i];
+    const itemStart = offset;
+    offset += row.itemLen;
+    const itemEnd = itemStart + row.itemLen;
+    const visible = row.itemBudget > 0;
+    if (!visible) return null;
+    const caretHere = showCaret && typedLen < total && typedLen > itemStart && typedLen <= itemEnd;
+    const liCls = i < details.length - 1 ? "mb-0 ms-[24px]" : "ms-[24px]";
+    return (
+      <li key={d.id} className={liCls}>
+        <span className="leading-[21px]">
+          {row.titleVis ? <span className={AI_TYPING_BOLD_CLASS}>{row.titleVis}</span> : null}
+          {row.tailVis ? <span className="leading-[21px]">{row.tailVis}</span> : null}
+          {caretHere ? <TypingCaretInline /> : null}
+        </span>
+      </li>
+    );
+  });
+
+  const question = COMPARE_QUESTION.slice(0, questionTake);
+  const qStart = total - COMPARE_QUESTION.length;
+  const caretInQuestion = showCaret && typedLen < total && typedLen >= qStart;
+
+  return (
+    <div className={AI_MESSAGE_BODY_CLASS}>
+      <p className="mb-0 whitespace-pre-wrap leading-[21px]">
+        {introTake > 0 ? <span className={AI_TYPING_BOLD_CLASS}>{intro}</span> : null}
+        {caretInIntro ? <TypingCaretInline /> : null}
+      </p>
+      <ul className="mb-0 list-disc">{listItems}</ul>
+      <p className="mb-0 whitespace-pre-wrap leading-[21px]">&nbsp;</p>
+      <p className="whitespace-pre-wrap leading-[21px]">
+        {questionTake > 0 ? <span className={AI_TYPING_BOLD_CLASS}>{question}</span> : null}
+        {caretInQuestion ? <TypingCaretInline /> : null}
+      </p>
+    </div>
+  );
+}
+
+/** One lead-in line (bold) + single `<li>` (bold title + plain rest). */
+function LeadInOneBulletAiBody({
+  leadInBold,
+  titleBold,
+  plainAfterTitle,
+  typedLen,
+  showCaret,
+}: {
+  leadInBold: string;
+  titleBold: string;
+  plainAfterTitle: string;
+  typedLen: number;
+  showCaret: boolean;
+}) {
+  const afterTitle = ` ${plainAfterTitle}`;
+  const total = leadInBold.length + titleBold.length + afterTitle.length;
+  let r = typedLen;
+  const i1 = Math.min(r, leadInBold.length);
+  r -= i1;
+  const lead = leadInBold.slice(0, i1);
+  const t1 = Math.min(r, titleBold.length);
+  r -= t1;
+  const title = titleBold.slice(0, t1);
+  const p1 = Math.min(r, afterTitle.length);
+  const plain = afterTitle.slice(0, p1);
+
+  const introEnd = leadInBold.length;
+  const liEnd = introEnd + titleBold.length + afterTitle.length;
+  const caretLead = showCaret && typedLen < total && typedLen <= introEnd;
+  const caretInLi = showCaret && typedLen < total && typedLen > introEnd && typedLen <= liEnd;
+
+  return (
+    <div className={AI_MESSAGE_BODY_CLASS}>
+      <p className="mb-0 whitespace-pre-wrap leading-[21px]">
+        {lead ? <span className={AI_TYPING_BOLD_CLASS}>{lead}</span> : null}
+        {caretLead ? <TypingCaretInline /> : null}
+      </p>
+      <ul className="mb-0 list-disc">
+        {typedLen > introEnd ? (
+          <li className="ms-[24px]">
+            <span className="leading-[21px]">
+              {title ? <span className={AI_TYPING_BOLD_CLASS}>{title}</span> : null}
+              {plain ? <span className="leading-[21px]">{plain}</span> : null}
+              {caretInLi ? <TypingCaretInline /> : null}
+            </span>
+          </li>
+        ) : null}
+      </ul>
     </div>
   );
 }
@@ -2788,7 +2873,7 @@ function FirstAiResponseSequence() {
                 <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">what’s your current role?</span>
               </p>
             </div>
-            <Actions />
+            <ChatAiMessageActions />
           </div>
         </div>
       ) : null}
@@ -2822,17 +2907,19 @@ function ProductManagerFollowUpSequence({
     return () => window.clearTimeout(id);
   }, [phase]);
 
+  const pmTypingTotal = pmAssistantTypingTotalLen();
+
   useEffect(() => {
     if (phase !== "typing") return;
-    if (typedLen >= PRODUCT_MANAGER_AI_PLAINTEXT.length) {
+    if (typedLen >= pmTypingTotal) {
       setPhase("done");
       return;
     }
     const id = window.setTimeout(() => {
-      setTypedLen((n) => Math.min(n + AI_CHARS_PER_STEP, PRODUCT_MANAGER_AI_PLAINTEXT.length));
+      setTypedLen((n) => Math.min(n + AI_CHARS_PER_STEP, pmTypingTotal));
     }, AI_TYPE_MS_PER_STEP);
     return () => window.clearTimeout(id);
-  }, [phase, typedLen]);
+  }, [phase, typedLen, pmTypingTotal]);
 
   useEffect(() => {
     if (!recommendationsReady) {
@@ -2853,101 +2940,35 @@ function ProductManagerFollowUpSequence({
       <UserMessageChip key="user-turn-product-manager" onUserMessageMounted={onUserMessageMounted}>
         {PRODUCT_MANAGER_TITLE}
       </UserMessageChip>
-      {phase === "typing" ? (
-        <AiResponseTypingBlock segments={PM_AI_SEGMENTS} typedLen={typedLen} />
-      ) : null}
-      {phase === "done" ? (
+      {phase === "typing" || phase === "done" ? (
         <div className="relative shrink-0 w-full" data-name="Individual chat inputs">
           <div className="content-stretch flex flex-col gap-[8px] items-start px-[16px] relative w-full">
-            <div className="flex flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] min-w-0 w-full max-w-full relative shrink-0 text-[0px] text-[14px] text-[#0f1114] whitespace-pre-wrap">
-              <p className="leading-[21px] mb-0 whitespace-pre-wrap">
-                As a Product Manager, Generative AI can immediately help you with:
-              </p>
-              <ul className="list-disc mb-0">
-                <li className="mb-0 ms-[24px]">
-                  <span className="leading-[21px]">{`Writing clearer `}</span>
-                  <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">PRDs and specs</span>
-                </li>
-                <li className="mb-0 ms-[24px]">
-                  <span className="leading-[21px]">{`Synthesizing `}</span>
-                  <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">user research and feedback</span>
-                </li>
-                <li className="mb-0 ms-[24px]">
-                  <span className="leading-[21px]">{`Generating `}</span>
-                  <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">roadmap options</span>
-                </li>
-                <li className="ms-[24px]">
-                  <span className="leading-[21px]">{`Drafting `}</span>
-                  <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">stakeholder updates</span>
-                </li>
-              </ul>
-              <p className="leading-[21px] mb-0 whitespace-pre-wrap">&nbsp;</p>
-              <p className="leading-[21px] whitespace-pre-wrap">
-                I’ll focus on short, practical lessons with reusable prompt frameworks you can apply right away.
-              </p>
-            </div>
-            <RecommendationStatus recommendationsReady={recommendationsReady} />
-            {recommendationsReady ? (
-              <p className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px] min-w-0 w-full max-w-full text-[14px] text-[#0f1114]">
-                {REFINE_RECOMMENDATIONS_QUESTION.slice(0, refineTypedLen)}
-                {refineTypedLen < REFINE_RECOMMENDATIONS_QUESTION.length ? (
-                  <span
-                    className="inline-block w-px h-[14px] ml-0.5 bg-[#0f1114] animate-pulse"
-                    style={{ verticalAlign: "-0.15em" }}
-                    aria-hidden
-                  />
+            <PmAssistantMainBody
+              typedLen={phase === "done" ? pmTypingTotal : typedLen}
+              showCaret={phase === "typing" && typedLen < pmTypingTotal}
+            />
+            {phase === "done" ? (
+              <>
+                <RecommendationStatus recommendationsReady={recommendationsReady} />
+                {recommendationsReady ? (
+                  <p className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px] min-w-0 w-full max-w-full text-[14px] text-[#0f1114]">
+                    {REFINE_RECOMMENDATIONS_QUESTION.slice(0, refineTypedLen)}
+                    {refineTypedLen < REFINE_RECOMMENDATIONS_QUESTION.length ? (
+                      <span
+                        className="inline-block h-[14px] w-px bg-[#0f1114] animate-pulse"
+                        style={{ verticalAlign: "-0.15em" }}
+                        aria-hidden
+                      />
+                    ) : null}
+                  </p>
                 ) : null}
-              </p>
+                <ChatAiMessageActions />
+              </>
             ) : null}
-            <Actions />
           </div>
         </div>
       ) : null}
     </>
-  );
-}
-
-function UserMessageChip({
-  children,
-  onUserMessageMounted,
-}: {
-  children: ReactNode;
-  /** Called when this user bubble mounts so the panel can pin it to the top (new turn). */
-  onUserMessageMounted?: (el: HTMLElement) => void;
-}) {
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  const setRootRef = useCallback((node: HTMLDivElement | null) => {
-    rootRef.current = node;
-  }, []);
-
-  useLayoutEffect(() => {
-    const el = rootRef.current;
-    if (!el || !onUserMessageMounted) return;
-    onUserMessageMounted(el);
-    /** `children` ensures a new chip instance still pins after layout; callback is stable via ref at call site. */
-  }, [onUserMessageMounted, children]);
-
-  return (
-    <div
-      ref={setRootRef}
-      className="relative shrink-0 w-full scroll-mt-2"
-      data-name="Individual chat inputs"
-      data-chat-user-turn
-    >
-      <div className="flex flex-col items-end justify-center size-full">
-        <div className="content-stretch flex flex-col items-end justify-center px-[16px] relative w-full">
-          <div
-            className="bg-[#f2f5fa] content-stretch flex gap-[4px] items-start justify-end max-w-[min(452px,100%)] px-[12px] py-[8px] relative rounded-[8px] shrink-0 w-fit min-w-0 ml-auto"
-            data-name="Chip"
-          >
-            <div className="flex flex-[1_0_0] flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] min-h-px min-w-px relative text-[#0f1114] text-[14px]">
-              <p className="leading-[21px]">{children}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -2980,17 +3001,17 @@ function exploreAlternativesSummaryBlurb(
   return text;
 }
 
-function buildExploreAlternativesTypingSegments(
-  newDetail: CompareCourseDetail,
-  replaced: CompareCourseDetail | null,
-): readonly { text: string; bold?: boolean }[] {
-  const blurb = exploreAlternativesSummaryBlurb(newDetail, replaced);
-  return [
-    { text: "Here's your alternative:\n\n", bold: true },
-    { text: "• " },
-    { text: newDetail.title, bold: true },
-    { text: ` ${blurb}` },
-  ];
+const MORE_LIKE_LEAD_IN = "Added another comparable option:";
+const EXPLORE_ALTERNATIVES_LEAD_IN = `Here\u2019s your alternative:`;
+
+function moreLikeTypingTotalLen(newD: CompareCourseDetail, prev: CompareCourseDetail[]): number {
+  const blurb = moreLikeThisBlurb(newD, prev);
+  return MORE_LIKE_LEAD_IN.length + newD.title.length + 1 + blurb.length;
+}
+
+function exploreAlternativesTypingTotalLen(newD: CompareCourseDetail, replaced: CompareCourseDetail | null): number {
+  const blurb = exploreAlternativesSummaryBlurb(newD, replaced);
+  return EXPLORE_ALTERNATIVES_LEAD_IN.length + newD.title.length + 1 + blurb.length;
 }
 
 /** Summary line when a “more like this” course is added next to an existing comparison (prototype copy). */
@@ -3007,19 +3028,6 @@ function moreLikeThisBlurb(newD: CompareCourseDetail, previous: CompareCourseDet
   const m = meta.match(/(\d+)[-–](\d+)\s*(month|week)s?/i);
   const duration = m ? `${m[1]}–${m[2]} ${m[3]}s` : "3–6 months";
   return `...might be a good fit for you. It's comprehensive — taking ${duration} — but focuses more on practical understanding than technical depth.${vsOthers}`;
-}
-
-function buildMoreLikeTypingSegments(
-  newDetail: CompareCourseDetail,
-  previous: CompareCourseDetail[],
-): readonly { text: string; bold?: boolean }[] {
-  const blurb = moreLikeThisBlurb(newDetail, previous);
-  return [
-    { text: "Added another comparable option:\n\n", bold: true },
-    { text: "• " },
-    { text: newDetail.title, bold: true },
-    { text: ` ${blurb}` },
-  ];
 }
 
 /** One or two sentences contrasting a course with the rest of the selection (prototype copy). */
@@ -3040,69 +3048,6 @@ function compareDifferenceLine(d: CompareCourseDetail, index: number): string {
   return angles[index % angles.length];
 }
 
-function buildCompareTypingSegments(details: CompareCourseDetail[]): readonly { text: string; bold?: boolean }[] {
-  if (details.length === 0) return [{ text: "" }];
-  const out: { text: string; bold?: boolean }[] = [{ text: "Key differences:\n\n", bold: true }];
-  details.forEach((d, i) => {
-    out.push({ text: "• " });
-    out.push({ text: d.title, bold: true });
-    out.push({ text: ` ${compareDifferenceLine(d, i)}` });
-    out.push({ text: i < details.length - 1 ? "\n" : "\n\n" });
-  });
-  out.push({ text: "Do you have any questions?", bold: true });
-  return out;
-}
-
-/** Matches ChatPanelSkeleton user row — pulse bar before the real user chip appears. */
-function UserMessageLoadingSkeleton() {
-  return (
-    <div
-      className="relative shrink-0 w-full"
-      data-name="User message loading"
-      aria-busy="true"
-    >
-      <div className="flex flex-col items-end justify-center size-full">
-        <div className="content-stretch flex flex-col items-end justify-center px-[16px] relative w-full">
-          <div className="ml-auto h-[28px] w-[min(214px,90%)] max-w-[min(452px,100%)] shrink-0 rounded-[5px] bg-[#e8ecf4] animate-pulse" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CompareCoursesSummaryAiBlock({ courses }: { courses: ResolvedSerpCourse[] }) {
-  const details = courses
-    .map((c) => resolveCompareCourseDetail(c.id))
-    .filter((row): row is CompareCourseDetail => row != null);
-  if (details.length === 0) return null;
-  return (
-    <div className="relative shrink-0 w-full" data-name="Compare summary AI">
-      <div className="content-stretch flex flex-col gap-[8px] items-start px-[16px] relative w-full">
-        <div className="flex flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] min-w-0 w-full max-w-full relative shrink-0 text-[0px] text-[14px] text-[#0f1114] whitespace-pre-wrap">
-          <p className="leading-[21px] mb-0 whitespace-pre-wrap">
-            <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">Key differences:</span>
-          </p>
-          <ul className="list-disc mb-0">
-            {details.map((d, i) => (
-              <li key={d.id} className={i < details.length - 1 ? "mb-0 ms-[24px]" : "ms-[24px]"}>
-                <span className="leading-[21px]">
-                  <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">{d.title}</span>
-                  {` ${compareDifferenceLine(d, i)}`}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p className="leading-[21px] mb-0 whitespace-pre-wrap">&nbsp;</p>
-          <p className="leading-[21px] whitespace-pre-wrap">
-            <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">Do you have any questions?</span>
-          </p>
-        </div>
-        <Actions />
-      </div>
-    </div>
-  );
-}
-
 function CompareCoursesChatExchange({
   courses,
   onUserMessageMounted,
@@ -3117,8 +3062,7 @@ function CompareCoursesChatExchange({
         .filter((row): row is CompareCourseDetail => row != null),
     [courses],
   );
-  const typingSegments = useMemo(() => buildCompareTypingSegments(details), [details]);
-  const compareTypingPlaintext = useMemo(() => typingSegments.map((s) => s.text).join(""), [typingSegments]);
+  const compareTotal = useMemo(() => compareTypingTotalLen(details), [details]);
 
   const [phase, setPhase] = useState<"user_loading" | "user_chip" | "typing" | "done">("user_loading");
   const [typedLen, setTypedLen] = useState(0);
@@ -3140,15 +3084,15 @@ function CompareCoursesChatExchange({
 
   useEffect(() => {
     if (phase !== "typing") return;
-    if (typedLen >= compareTypingPlaintext.length) {
+    if (typedLen >= compareTotal) {
       setPhase("done");
       return;
     }
     const id = window.setTimeout(() => {
-      setTypedLen((n) => Math.min(n + AI_CHARS_PER_STEP, compareTypingPlaintext.length));
+      setTypedLen((n) => Math.min(n + AI_CHARS_PER_STEP, compareTotal));
     }, AI_TYPE_MS_PER_STEP);
     return () => window.clearTimeout(id);
-  }, [phase, typedLen, compareTypingPlaintext.length]);
+  }, [phase, typedLen, compareTotal]);
 
   if (details.length === 0) return null;
 
@@ -3158,10 +3102,18 @@ function CompareCoursesChatExchange({
       {phase === "user_chip" || phase === "typing" || phase === "done" ? (
         <UserMessageChip onUserMessageMounted={onUserMessageMounted}>{COMPARE_SELECTED_USER_MESSAGE}</UserMessageChip>
       ) : null}
-      {phase === "typing" ? (
-        <AiResponseTypingBlock segments={typingSegments} typedLen={typedLen} />
+      {phase === "typing" || phase === "done" ? (
+        <div className="relative shrink-0 w-full" data-name="Compare summary AI">
+          <div className="content-stretch flex flex-col gap-[8px] items-start px-[16px] relative w-full">
+            <CompareCoursesAiBody
+              details={details}
+              typedLen={phase === "done" ? compareTotal : typedLen}
+              showCaret={phase === "typing" && typedLen < compareTotal}
+            />
+            {phase === "done" ? <ChatAiMessageActions /> : null}
+          </div>
+        </div>
       ) : null}
-      {phase === "done" ? <CompareCoursesSummaryAiBlock courses={courses} /> : null}
     </div>
   );
 }
@@ -3179,24 +3131,19 @@ function MoreLikeThisSummaryAiBlock({
     .filter((row): row is CompareCourseDetail => row != null);
   if (!newD) return null;
   const blurb = moreLikeThisBlurb(newD, prevDetails);
+  const total = moreLikeTypingTotalLen(newD, prevDetails);
   return (
     <div className="relative shrink-0 w-full" data-name="More like this summary AI">
       <div className="content-stretch flex flex-col gap-[8px] items-start px-[16px] relative w-full">
         <RecommendationStatus recommendationsReady={true} />
-        <div className="flex flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] min-w-0 w-full max-w-full relative shrink-0 text-[0px] text-[14px] text-[#0f1114] whitespace-pre-wrap">
-          <p className="leading-[21px] mb-0 whitespace-pre-wrap">
-            <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">Added another comparable option:</span>
-          </p>
-          <ul className="list-disc mb-0">
-            <li className="ms-[24px]">
-              <span className="leading-[21px]">
-                <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">{newD.title}</span>
-                {` ${blurb}`}
-              </span>
-            </li>
-          </ul>
-        </div>
-        <Actions />
+        <LeadInOneBulletAiBody
+          leadInBold={MORE_LIKE_LEAD_IN}
+          titleBold={newD.title}
+          plainAfterTitle={blurb}
+          typedLen={total}
+          showCaret={false}
+        />
+        <ChatAiMessageActions />
       </div>
     </div>
   );
@@ -3219,11 +3166,10 @@ function MoreLikeThisChatExchange({
         .filter((row): row is CompareCourseDetail => row != null),
     [previousCourses],
   );
-  const typingSegments = useMemo(() => {
-    if (!newDetail) return [{ text: "" }];
-    return buildMoreLikeTypingSegments(newDetail, prevDetails);
-  }, [newDetail, prevDetails]);
-  const typingPlaintext = useMemo(() => typingSegments.map((s) => s.text).join(""), [typingSegments]);
+  const moreTotal = useMemo(
+    () => (newDetail ? moreLikeTypingTotalLen(newDetail, prevDetails) : 0),
+    [newDetail, prevDetails],
+  );
 
   const [phase, setPhase] = useState<"user_loading" | "user_chip" | "typing" | "done">("user_loading");
   const [typedLen, setTypedLen] = useState(0);
@@ -3245,17 +3191,19 @@ function MoreLikeThisChatExchange({
 
   useEffect(() => {
     if (phase !== "typing") return;
-    if (typedLen >= typingPlaintext.length) {
+    if (typedLen >= moreTotal) {
       setPhase("done");
       return;
     }
     const id = window.setTimeout(() => {
-      setTypedLen((n) => Math.min(n + AI_CHARS_PER_STEP, typingPlaintext.length));
+      setTypedLen((n) => Math.min(n + AI_CHARS_PER_STEP, moreTotal));
     }, AI_TYPE_MS_PER_STEP);
     return () => window.clearTimeout(id);
-  }, [phase, typedLen, typingPlaintext.length]);
+  }, [phase, typedLen, moreTotal]);
 
   if (!newDetail) return null;
+
+  const blurb = moreLikeThisBlurb(newDetail, prevDetails);
 
   return (
     <div className="contents">
@@ -3263,9 +3211,20 @@ function MoreLikeThisChatExchange({
       {phase === "user_chip" || phase === "typing" || phase === "done" ? (
         <UserMessageChip onUserMessageMounted={onUserMessageMounted}>{MORE_LIKE_THIS_USER_MESSAGE}</UserMessageChip>
       ) : null}
-      {phase === "typing" ? <AiResponseTypingBlock segments={typingSegments} typedLen={typedLen} /> : null}
-      {phase === "done" ? (
-        <MoreLikeThisSummaryAiBlock newCourse={newCourse} previousCourses={previousCourses} />
+      {phase === "typing" || phase === "done" ? (
+        <div className="relative shrink-0 w-full" data-name="More like this summary AI">
+          <div className="content-stretch flex flex-col gap-[8px] items-start px-[16px] relative w-full">
+            {phase === "done" ? <RecommendationStatus recommendationsReady={true} /> : null}
+            <LeadInOneBulletAiBody
+              leadInBold={MORE_LIKE_LEAD_IN}
+              titleBold={newDetail.title}
+              plainAfterTitle={blurb}
+              typedLen={phase === "done" ? moreTotal : typedLen}
+              showCaret={phase === "typing" && typedLen < moreTotal}
+            />
+            {phase === "done" ? <ChatAiMessageActions /> : null}
+          </div>
+        </div>
       ) : null}
     </div>
   );
@@ -3282,24 +3241,19 @@ function ExploreAlternativesSummaryAiBlock({
   const replacedD = replacedCourse ? resolveCompareCourseDetail(replacedCourse.id) : null;
   if (!newD) return null;
   const blurb = exploreAlternativesSummaryBlurb(newD, replacedD);
+  const total = exploreAlternativesTypingTotalLen(newD, replacedD);
   return (
     <div className="relative shrink-0 w-full" data-name="Explore alternatives summary AI">
       <div className="content-stretch flex flex-col gap-[8px] items-start px-[16px] relative w-full">
         <RecommendationStatus recommendationsReady={true} />
-        <div className="flex flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] min-w-0 w-full max-w-full relative shrink-0 text-[0px] text-[14px] text-[#0f1114] whitespace-pre-wrap">
-          <p className="leading-[21px] mb-0 whitespace-pre-wrap">
-            <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">Here’s your alternative:</span>
-          </p>
-          <ul className="list-disc mb-0">
-            <li className="ms-[24px]">
-              <span className="leading-[21px]">
-                <span className="font-['Source_Sans_3',sans-serif] font-bold leading-[21px]">{newD.title}</span>
-                {` ${blurb}`}
-              </span>
-            </li>
-          </ul>
-        </div>
-        <Actions />
+        <LeadInOneBulletAiBody
+          leadInBold={EXPLORE_ALTERNATIVES_LEAD_IN}
+          titleBold={newD.title}
+          plainAfterTitle={blurb}
+          typedLen={total}
+          showCaret={false}
+        />
+        <ChatAiMessageActions />
       </div>
     </div>
   );
@@ -3319,11 +3273,10 @@ function ExploreAlternativesChatExchange({
     () => (replacedCourse ? resolveCompareCourseDetail(replacedCourse.id) : null),
     [replacedCourse?.id],
   );
-  const typingSegments = useMemo(() => {
-    if (!newDetail) return [{ text: "" }];
-    return buildExploreAlternativesTypingSegments(newDetail, replacedDetail);
-  }, [newDetail, replacedDetail]);
-  const typingPlaintext = useMemo(() => typingSegments.map((s) => s.text).join(""), [typingSegments]);
+  const exploreTotal = useMemo(
+    () => (newDetail ? exploreAlternativesTypingTotalLen(newDetail, replacedDetail) : 0),
+    [newDetail, replacedDetail],
+  );
 
   const [phase, setPhase] = useState<"user_loading" | "user_chip" | "typing" | "done">("user_loading");
   const [typedLen, setTypedLen] = useState(0);
@@ -3345,17 +3298,19 @@ function ExploreAlternativesChatExchange({
 
   useEffect(() => {
     if (phase !== "typing") return;
-    if (typedLen >= typingPlaintext.length) {
+    if (typedLen >= exploreTotal) {
       setPhase("done");
       return;
     }
     const id = window.setTimeout(() => {
-      setTypedLen((n) => Math.min(n + AI_CHARS_PER_STEP, typingPlaintext.length));
+      setTypedLen((n) => Math.min(n + AI_CHARS_PER_STEP, exploreTotal));
     }, AI_TYPE_MS_PER_STEP);
     return () => window.clearTimeout(id);
-  }, [phase, typedLen, typingPlaintext.length]);
+  }, [phase, typedLen, exploreTotal]);
 
   if (!newDetail) return null;
+
+  const exploreBlurb = exploreAlternativesSummaryBlurb(newDetail, replacedDetail);
 
   return (
     <div className="contents">
@@ -3363,9 +3318,20 @@ function ExploreAlternativesChatExchange({
       {phase === "user_chip" || phase === "typing" || phase === "done" ? (
         <UserMessageChip onUserMessageMounted={onUserMessageMounted}>{EXPLORE_ALTERNATIVES_USER_MESSAGE}</UserMessageChip>
       ) : null}
-      {phase === "typing" ? <AiResponseTypingBlock segments={typingSegments} typedLen={typedLen} /> : null}
-      {phase === "done" ? (
-        <ExploreAlternativesSummaryAiBlock newCourse={newCourse} replacedCourse={replacedCourse} />
+      {phase === "typing" || phase === "done" ? (
+        <div className="relative shrink-0 w-full" data-name="Explore alternatives summary AI">
+          <div className="content-stretch flex flex-col gap-[8px] items-start px-[16px] relative w-full">
+            {phase === "done" ? <RecommendationStatus recommendationsReady={true} /> : null}
+            <LeadInOneBulletAiBody
+              leadInBold={EXPLORE_ALTERNATIVES_LEAD_IN}
+              titleBold={newDetail.title}
+              plainAfterTitle={exploreBlurb}
+              typedLen={phase === "done" ? exploreTotal : typedLen}
+              showCaret={phase === "typing" && typedLen < exploreTotal}
+            />
+            {phase === "done" ? <ChatAiMessageActions /> : null}
+          </div>
+        </div>
       ) : null}
     </div>
   );
@@ -3378,7 +3344,7 @@ function RemoveCourseSummaryAiBlock() {
         <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[21px] min-w-0 w-full max-w-full text-[14px] text-[#0f1114] whitespace-pre-wrap">
           {REMOVE_COURSE_AI_MESSAGE}
         </p>
-        <Actions />
+        <ChatAiMessageActions />
       </div>
     </div>
   );
@@ -3504,6 +3470,7 @@ function Conversation({
   moreLikeThisChatExchanges,
   exploreAlternativesChatExchanges,
   removeCourseChatExchanges,
+  continuation,
 }: {
   showProductManagerFollowUp: boolean;
   onPmAssistantComplete?: () => void;
@@ -3523,6 +3490,8 @@ function Conversation({
     replacedCourse: ResolvedSerpCourse | null;
   }[];
   removeCourseChatExchanges: readonly { key: string; seq: number }[];
+  /** Optional tail (e.g. product-details “View …” turn) — same conversation thread. */
+  continuation?: ReactNode;
 }) {
   const comparisonTimeline = useMemo(
     () =>
@@ -3588,6 +3557,7 @@ function Conversation({
         }
         return <RemoveCourseChatExchange key={entry.key} onUserMessageMounted={onUserMessageMounted} />;
       })}
+      {continuation}
     </div>
   );
 }
@@ -3816,84 +3786,6 @@ function SuggestedRoleReplies({
   );
 }
 
-/** Figma ChatMessageComposer Toolbar (2156:31405): single ghost IconButton — add / attachment. */
-function ChatComposerAddButton() {
-  return (
-    <button
-      type="button"
-      aria-label="Add attachment"
-      className="flex shrink-0 items-center justify-center rounded-lg border-0 bg-transparent p-1 text-[#0f1114] transition-colors hover:bg-white/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
-      data-name="IconButton"
-    >
-      <img alt="" src={actionsAdd} className="size-5 shrink-0 object-contain" data-name="actions/Add" aria-hidden />
-    </button>
-  );
-}
-
-/** Figma ChatMessageComposer primary send (2156:70477): 32×32, rounded-lg, blue fill, white arrow. */
-function ChatSendCircleButton({ disabled }: { disabled: boolean }) {
-  return (
-    <button
-      type="submit"
-      disabled={disabled}
-      className={`flex size-8 shrink-0 items-center justify-center rounded-lg border-0 p-0 transition-colors duration-150 ${
-        disabled ? "cursor-not-allowed bg-[#c1cad9]" : "cursor-pointer bg-[#0056d2] hover:bg-[#0048b0]"
-      }`}
-      data-name="IconButton"
-      aria-label={disabled ? "Send message (enter text first)" : "Send"}
-    >
-      <div className="relative size-5 shrink-0 -rotate-90 overflow-clip" data-name="direction/ArrowUp">
-        <div className="absolute inset-[21.46%_21.56%_21.51%_20%]" data-name="Vector">
-          <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 11.6875 11.4067">
-            <path d={svgPaths.p205bab00} fill="#FFFFFF" id="Vector" />
-          </svg>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-function ChatComposerActionRow({ canSubmit }: { canSubmit: boolean }) {
-  return (
-    <div
-      className="content-stretch flex min-w-0 w-full shrink-0 items-end justify-between"
-      data-name="Action container"
-    >
-      <div className="content-stretch flex shrink-0 items-center" data-name="Toolbar">
-        <ChatComposerAddButton />
-      </div>
-      <div className="content-stretch flex shrink-0 items-center justify-end gap-1" data-name="Submit">
-        <button
-          type="button"
-          aria-label="Voice input"
-          className="relative flex size-8 shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-lg border-0 bg-transparent p-1 text-[#0f1114] transition-colors hover:bg-white/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
-          data-name="media/Microphone"
-        >
-          <img alt="" src={actionsAudio} className="size-5 shrink-0 object-contain" aria-hidden />
-        </button>
-        <ChatSendCircleButton disabled={!canSubmit} />
-      </div>
-    </div>
-  );
-}
-
-/** Figma ChatMessageComposer (2156:31405): compact shell; text body + gap-4px + action row. */
-function ChatInputSkeleton() {
-  return (
-    <div
-      className="bg-[#f2f5fa] flex flex-col gap-1 overflow-clip rounded-lg p-2 relative shrink-0 w-full min-w-0"
-      data-name="ChatMessageComposer"
-    >
-      <div className="flex w-full min-w-0 items-center p-1 relative shrink-0" data-name="Text Body">
-        <p className="min-h-[32px] flex-1 font-['Source_Sans_3',sans-serif] font-normal leading-[24px] text-[16px] text-[#5b6780]">
-          Ask anything...
-        </p>
-      </div>
-      <ChatComposerActionRow canSubmit={false} />
-    </div>
-  );
-}
-
 /** Figma Chat input 2109:67362 — follow-up refinement chips above composer after load. */
 const PM_FOLLOW_UP_SUGGESTIONS = [
   "Beginner-friendly",
@@ -3914,7 +3806,7 @@ function FollowUpPromptPills({ onSelect }: { onSelect: (label: string) => void }
             data-name="Prompt - Single Select"
             onClick={() => onSelect(label)}
           >
-            <span className="font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[14px] text-[#5b6780] whitespace-nowrap">
+            <span className="font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[14px] text-[#0f1114] whitespace-nowrap">
               {label}
             </span>
           </button>
@@ -3924,123 +3816,39 @@ function FollowUpPromptPills({ onSelect }: { onSelect: (label: string) => void }
   );
 }
 
-function ChatPanelSkeleton({ onClose }: { onClose?: () => void }) {
+export function ChatPanelSkeleton({ onClose }: { onClose?: () => void }) {
   return (
-    <aside
-      className={CHAT_PANEL_ASIDE_CLASS}
-      data-name="Chat Panel"
+    <ChatPanelShell
+      onClose={onClose}
       aria-busy="true"
       aria-label="Loading assistant"
+      footer={<ChatInputSkeleton />}
     >
-      <ChatPanelHeader onClose={onClose} />
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+      <div
+        className="content-stretch flex flex-col gap-[32px] items-start px-[16px] py-[28px] relative w-full min-w-0"
+        data-name="Conversation"
+      >
         <div
-          className="content-stretch flex flex-col gap-[32px] items-start px-[16px] py-[28px] relative w-full min-w-0"
-          data-name="Conversation"
+          className="content-stretch flex flex-col items-end justify-center relative shrink-0 w-full"
+          data-name="User response"
         >
-          <div
-            className="content-stretch flex flex-col items-end justify-center relative shrink-0 w-full"
-            data-name="User response"
-          >
-            <div className="h-[28px] max-w-[90%] w-[214px] shrink-0 rounded-[5px] bg-[#e8ecf4] animate-pulse" />
-          </div>
-          <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full min-w-0">
-            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-              <div
-                key={i}
-                className="h-[13px] w-full shrink-0 rounded-[4px] bg-[#e8ecf4] animate-pulse"
-              />
-            ))}
-            <div className="h-[13px] w-full max-w-[202px] shrink-0 rounded-[4px] bg-[#e8ecf4] animate-pulse" />
-          </div>
+          <div className="h-[28px] max-w-[90%] w-[214px] shrink-0 rounded-[5px] bg-[#e8ecf4] animate-pulse" />
+        </div>
+        <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full min-w-0">
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+            <div key={i} className="h-[13px] w-full shrink-0 rounded-[4px] bg-[#e8ecf4] animate-pulse" />
+          ))}
+          <div className="h-[13px] w-full max-w-[202px] shrink-0 rounded-[4px] bg-[#e8ecf4] animate-pulse" />
         </div>
       </div>
-      <div className="shrink-0 flex flex-col gap-[10px] items-start px-4 pt-4 pb-4 w-full min-w-0 bg-white overflow-x-clip">
-        <ChatInputSkeleton />
-      </div>
-    </aside>
-  );
-}
-
-function ChatInput({
-  value,
-  onChange,
-  placeholder,
-  awaitingRoleAnswer,
-  onConfirmProductManager,
-  composerTop,
-  inputAriaLabel,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-  placeholder: string;
-  awaitingRoleAnswer: boolean;
-  onConfirmProductManager: () => void;
-  /** Optional slot inside the #f2f5fa composer shell (e.g. selected course chips — Figma 2163:34106). */
-  composerTop?: ReactNode;
-  /** Overrides default role vs chat aria-label (e.g. when courses are selected before role pick). */
-  inputAriaLabel?: string;
-}) {
-  const navigate = useNavigate();
-  const canSubmit = value.trim().length > 0;
-
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const onSubmit = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const trimmed = value.trim();
-      if (!trimmed) return;
-      if (awaitingRoleAnswer && trimmed.toLowerCase() === PRODUCT_MANAGER_TITLE.toLowerCase()) {
-        onConfirmProductManager();
-        onChange("");
-        return;
-      }
-      navigate({ pathname: ROUTES.search, search: `?q=${encodeURIComponent(trimmed)}` });
-      onChange("");
-    },
-    [awaitingRoleAnswer, navigate, onChange, onConfirmProductManager, value],
-  );
-
-  const onTextareaKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key !== "Enter" || e.shiftKey) return;
-      e.preventDefault();
-      formRef.current?.requestSubmit();
-    },
-    [],
-  );
-
-  return (
-    <form
-      ref={formRef}
-      className="bg-[#f2f5fa] flex flex-col gap-1 overflow-clip rounded-lg p-2 relative shrink-0 w-full min-w-0"
-      data-name="ChatMessageComposer"
-      onSubmit={onSubmit}
-    >
-      {composerTop}
-      <div className="flex w-full min-w-0 items-center p-1 relative shrink-0" data-name="Text Body">
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={onTextareaKeyDown}
-          placeholder={placeholder}
-          rows={1}
-          aria-label={
-            inputAriaLabel ?? (awaitingRoleAnswer ? "My current role" : "Chat message")
-          }
-          className="max-h-[200px] min-h-[32px] w-full max-w-full flex-1 resize-none overflow-y-auto bg-transparent border-0 p-0 font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[14px] text-[#0f1114] outline-none placeholder:text-[#5b6780]"
-        />
-      </div>
-      <ChatComposerActionRow canSubmit={canSubmit} />
-    </form>
+    </ChatPanelShell>
   );
 }
 
 /** Gap between the scroll viewport top and the pinned user bubble (below header). */
 const CHAT_PIN_GAP_BELOW_VIEWPORT_TOP_PX = 8;
 
-function ChatPanel({
+export function ChatPanel({
   onPmAssistantComplete,
   recommendationsReady,
   courseSelectionFeaturesReady,
@@ -4053,6 +3861,8 @@ function ChatPanel({
   exploreAlternativesChatExchanges,
   removeCourseChatExchanges,
   comparisonActive,
+  showRolesChatEmptyState = false,
+  onDismissRolesChatEmpty,
 }: {
   onPmAssistantComplete?: () => void;
   recommendationsReady: boolean;
@@ -4079,9 +3889,18 @@ function ChatPanel({
   removeCourseChatExchanges: readonly { key: string; seq: number }[];
   /** True while the course comparison grid is open (not the SERP card grid). */
   comparisonActive: boolean;
+  /** Roles page: show “Where would you like to start?” instead of the default conversation thread. */
+  showRolesChatEmptyState?: boolean;
+  onDismissRolesChatEmpty?: () => void;
 }) {
-  const [composerText, setComposerText] = useState("");
-  const [productManagerConfirmed, setProductManagerConfirmed] = useState(false);
+  const {
+    composerText,
+    setComposerText,
+    productManagerConfirmed,
+    setProductManagerConfirmed,
+    pdpContinuation,
+    setPdpContinuation,
+  } = useGlobalChat();
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const pinSeqRef = useRef<{
     rafId: number | null;
@@ -4188,13 +4007,95 @@ function ChatPanel({
     [navigate],
   );
 
+  const onRolesEmptyPrompt = useCallback(
+    (label: string) => {
+      onDismissRolesChatEmpty?.();
+      navigate({ pathname: ROUTES.search, search: `?q=${encodeURIComponent(label)}` });
+    },
+    [navigate, onDismissRolesChatEmpty],
+  );
+
   return (
-    <aside className={CHAT_PANEL_ASIDE_CLASS} data-name="Chat Panel">
-      <ChatPanelHeader onClose={onClose} />
-      <div
-        ref={chatScrollRef}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain [overflow-anchor:none] pt-2"
-      >
+    <ChatPanelShell
+      onClose={onClose}
+      scrollRef={chatScrollRef}
+      footer={
+        <>
+          {pdpContinuation ? (
+            <>
+              <PdpCourseFollowUpPills onSelect={onFollowUpSuggestion} />
+              <ChatInput
+                value={composerText}
+                onChange={setComposerText}
+                placeholder="Ask about this course..."
+                awaitingRoleAnswer={false}
+                onConfirmProductManager={confirmProductManager}
+                inputAriaLabel="Chat message"
+                variant="pdp"
+                composerTop={
+                  <PdpComposerCoursePill
+                    title={pdpContinuation.courseTitle}
+                    thumb={pdpContinuation.courseThumb}
+                    onRemove={() => setPdpContinuation(null)}
+                  />
+                }
+              />
+            </>
+          ) : (
+            <>
+              {!showRolesChatEmptyState && !productManagerConfirmed && selectedCourses.length === 0 ? (
+                filteredRoles.length === 0 ? (
+                  <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[13px] text-[#5b6780]">
+                    No roles match &ldquo;{composerText.trim()}&rdquo;
+                  </p>
+                ) : (
+                  <SuggestedRoleReplies roles={filteredRoles} onSelectRole={handleSelectRole} />
+                )
+              ) : null}
+              {!showRolesChatEmptyState && productManagerConfirmed && courseSelectionFeaturesReady && selectedCourses.length === 0 ? (
+                <FollowUpPromptPills onSelect={onFollowUpSuggestion} />
+              ) : null}
+              {!showRolesChatEmptyState && courseSelectionFeaturesReady && selectedCourses.length === 1 ? (
+                <SingleCourseFollowUpPills onSelect={onFollowUpSuggestion} />
+              ) : null}
+              {!showRolesChatEmptyState && courseSelectionFeaturesReady && selectedCourses.length >= 2 ? (
+                <CompareSelectedCoursesPill comparisonActive={comparisonActive} onClick={onCompareSelected} />
+              ) : null}
+              <ChatInput
+                value={composerText}
+                onChange={setComposerText}
+                placeholder={
+                  showRolesChatEmptyState
+                    ? "Ask anything..."
+                    : courseSelectionFeaturesReady && selectedCourses.length >= 2
+                      ? "Ask about selected courses..."
+                      : courseSelectionFeaturesReady && selectedCourses.length === 1
+                        ? "Ask about selected course..."
+                        : productManagerConfirmed
+                          ? "Ask anything..."
+                          : "My current role is..."
+                }
+                awaitingRoleAnswer={showRolesChatEmptyState ? false : !productManagerConfirmed}
+                onConfirmProductManager={confirmProductManager}
+                inputAriaLabel={
+                  showRolesChatEmptyState || productManagerConfirmed || selectedCourses.length > 0
+                    ? "Chat message"
+                    : undefined
+                }
+                composerTop={
+                  courseSelectionFeaturesReady && selectedCourses.length > 0 ? (
+                    <ComposerSelectedCoursesAttachment courses={selectedCourses} onRemove={onRemoveSelectedCourse} />
+                  ) : undefined
+                }
+              />
+            </>
+          )}
+        </>
+      }
+    >
+      {showRolesChatEmptyState ? (
+        <RolesChatEmptyState onSelectPrompt={onRolesEmptyPrompt} />
+      ) : (
         <Conversation
           showProductManagerFollowUp={productManagerConfirmed}
           onPmAssistantComplete={onPmAssistantComplete}
@@ -4204,55 +4105,19 @@ function ChatPanel({
           moreLikeThisChatExchanges={moreLikeThisChatExchanges}
           exploreAlternativesChatExchanges={exploreAlternativesChatExchanges}
           removeCourseChatExchanges={removeCourseChatExchanges}
-        />
-      </div>
-      <div
-        className="shrink-0 flex flex-col gap-[10px] items-start px-4 pt-4 pb-4 w-full min-w-0 bg-white overflow-x-clip"
-        data-name="Chat input"
-      >
-        {!productManagerConfirmed && selectedCourses.length === 0 ? (
-          filteredRoles.length === 0 ? (
-            <p className="font-['Source_Sans_3',sans-serif] font-normal leading-[20px] text-[13px] text-[#5b6780]">
-              No roles match &ldquo;{composerText.trim()}&rdquo;
-            </p>
-          ) : (
-            <SuggestedRoleReplies roles={filteredRoles} onSelectRole={handleSelectRole} />
-          )
-        ) : null}
-        {productManagerConfirmed && courseSelectionFeaturesReady && selectedCourses.length === 0 ? (
-          <FollowUpPromptPills onSelect={onFollowUpSuggestion} />
-        ) : null}
-        {courseSelectionFeaturesReady && selectedCourses.length === 1 ? (
-          <SingleCourseFollowUpPills onSelect={onFollowUpSuggestion} />
-        ) : null}
-        {courseSelectionFeaturesReady && selectedCourses.length >= 2 ? (
-          <CompareSelectedCoursesPill comparisonActive={comparisonActive} onClick={onCompareSelected} />
-        ) : null}
-        <ChatInput
-          value={composerText}
-          onChange={setComposerText}
-          placeholder={
-            courseSelectionFeaturesReady && selectedCourses.length >= 2
-              ? "Ask about selected courses..."
-              : courseSelectionFeaturesReady && selectedCourses.length === 1
-                ? "Ask about selected course..."
-                : productManagerConfirmed
-                  ? "Ask anything..."
-                  : "My current role is..."
-          }
-          awaitingRoleAnswer={!productManagerConfirmed}
-          onConfirmProductManager={confirmProductManager}
-          inputAriaLabel={
-            !productManagerConfirmed && selectedCourses.length === 0 ? undefined : "Chat message"
-          }
-          composerTop={
-            courseSelectionFeaturesReady && selectedCourses.length > 0 ? (
-              <ComposerSelectedCoursesAttachment courses={selectedCourses} onRemove={onRemoveSelectedCourse} />
+          continuation={
+            pdpContinuation ? (
+              <PdpChatContinuationAnimated
+                key={pdpContinuation.courseId}
+                courseTitle={pdpContinuation.courseTitle}
+                productNounForAi={pdpContinuation.productNounForAi}
+                onUserMessageMounted={stablePinUserMessageToTop}
+              />
             ) : undefined
           }
         />
-      </div>
-    </aside>
+      )}
+    </ChatPanelShell>
   );
 }
 
@@ -4260,7 +4125,13 @@ export default function SearchResultsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const qFromUrl = searchParams.get("q") ?? "";
   const [headerSearchDraft, setHeaderSearchDraft] = useState(qFromUrl);
-  const [aiPanelOpen, setAiPanelOpen] = useState(true);
+  const {
+    aiPanelOpen,
+    toggleAiPanel,
+    closeAiPanel,
+    setSerpChatData,
+    serpHandlersRef,
+  } = useGlobalChat();
 
   const [resultsReady, setResultsReady] = useState(false);
   const [serpResultsMode, setSerpResultsMode] = useState<SerpResultsMode>("default");
@@ -4519,9 +4390,6 @@ export default function SearchResultsPage() {
     [setSearchParams],
   );
 
-  const closeAiPanel = useCallback(() => setAiPanelOpen(false), []);
-  const toggleAiPanel = useCallback(() => setAiPanelOpen((o) => !o), []);
-
   useEffect(() => {
     if (serpResultsMode !== "pm_updating") return;
     const id = window.setTimeout(() => setSerpResultsMode("pm_results"), PM_RECOMMENDATIONS_REFRESH_MS);
@@ -4544,6 +4412,45 @@ export default function SearchResultsPage() {
   const handlePmAssistantComplete = useCallback(() => {
     setSerpResultsMode("pm_updating");
   }, []);
+
+  useLayoutEffect(() => {
+    setSerpChatData({
+      resultsReady,
+      recommendationsReady: serpResultsMode === "pm_results",
+      courseSelectionFeaturesReady,
+      selectedCourses,
+      compareChatExchanges,
+      moreLikeThisChatExchanges,
+      exploreAlternativesChatExchanges,
+      removeCourseChatExchanges,
+      comparisonActive,
+    });
+    serpHandlersRef.current = {
+      onPmAssistantComplete: handlePmAssistantComplete,
+      onRemoveSelectedCourse: removeCourseSelection,
+      onCompareSelected: handleCompareSelectedFromChat,
+      onClose: closeAiPanel,
+    };
+    return () => {
+      serpHandlersRef.current = null;
+    };
+  }, [
+    setSerpChatData,
+    serpHandlersRef,
+    resultsReady,
+    serpResultsMode,
+    courseSelectionFeaturesReady,
+    selectedCourses,
+    compareChatExchanges,
+    moreLikeThisChatExchanges,
+    exploreAlternativesChatExchanges,
+    removeCourseChatExchanges,
+    comparisonActive,
+    handlePmAssistantComplete,
+    removeCourseSelection,
+    handleCompareSelectedFromChat,
+    closeAiPanel,
+  ]);
 
   return (
     <div className="bg-white min-h-screen w-full" data-name="SERP - DW">
@@ -4597,7 +4504,6 @@ export default function SearchResultsPage() {
                 loadingColumnIndexes={comparisonColumnLoading}
                 onComparisonMenuAction={handleComparisonMenuAction}
                 exploreUpdatedCourseIds={compareExploreUpdatedIds}
-                onOpenProductCourse={(id) => navigate(ROUTES.product(id))}
               />
             ) : serpResultsMode === "default" ? (
               <List selectedIds={selectedCourseIds} onToggle={toggleCourseSelection} />
@@ -4608,24 +4514,6 @@ export default function SearchResultsPage() {
             )}
           </div>
         </main>
-        {aiPanelOpen && resultsReady ? (
-          <ChatPanel
-            onPmAssistantComplete={handlePmAssistantComplete}
-            recommendationsReady={serpResultsMode === "pm_results"}
-            courseSelectionFeaturesReady={courseSelectionFeaturesReady}
-            onClose={closeAiPanel}
-            selectedCourses={selectedCourses}
-            onRemoveSelectedCourse={removeCourseSelection}
-            onCompareSelected={handleCompareSelectedFromChat}
-            compareChatExchanges={compareChatExchanges}
-            moreLikeThisChatExchanges={moreLikeThisChatExchanges}
-            exploreAlternativesChatExchanges={exploreAlternativesChatExchanges}
-            removeCourseChatExchanges={removeCourseChatExchanges}
-            comparisonActive={comparisonActive}
-          />
-        ) : aiPanelOpen ? (
-          <ChatPanelSkeleton onClose={closeAiPanel} />
-        ) : null}
       </div>
     </div>
   );

@@ -1,10 +1,21 @@
-import { type FormEvent, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type FormEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router";
 import { Search } from "lucide-react";
 import actionsClose from "../../assets/actions-close.svg";
 import sparkleSvg from "../../assets/sparkle.svg";
 import svgPaths from "../svg/svg-gmzksqch85";
+import { ExploreMegaMenu } from "@/components/layout/ExploreMegaMenu";
 import { IdleAutocompletePanel, TypingAutocompletePanel } from "@/components/search/SearchAutocompletePanels";
+import { cn } from "@/lib/utils";
 import { ROUTES } from "@/routes";
 
 const SERP_HEADER_AUTOCOMPLETE_LISTBOX_ID = "serp-header-autocomplete-dropdown";
@@ -35,23 +46,6 @@ function LogoAppSwitcher() {
   );
 }
 
-function ExploreButton() {
-  return (
-    <div className="content-stretch flex items-center relative shrink-0" data-name="Explore Button">
-      <div className="flex flex-col font-['Source_Sans_3',sans-serif] font-normal justify-center leading-[0] not-italic relative shrink-0 text-[14px] text-[color:var(--cds-color-neutral-primary-weak,#5b6780)] text-center whitespace-nowrap">
-        <p className="leading-[20px]">Explore</p>
-      </div>
-      <div className="overflow-clip relative shrink-0 size-[16px]" data-name="direction/ChevronDown">
-        <div className="absolute inset-[36.46%_26.46%_36.25%_26.51%]" data-name="Vector">
-          <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 7.52535 4.36667">
-            <path d={svgPaths.p309a7b80} fill="var(--fill-0, #5B6780)" id="Vector" />
-          </svg>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function DegreesButton() {
   return (
     <div className="content-stretch flex items-center justify-center relative shrink-0" data-name="Degrees Button">
@@ -62,23 +56,31 @@ function DegreesButton() {
   );
 }
 
-function Nav() {
+function Nav({ explore }: { explore: ReactNode }) {
   return (
     <div className="content-stretch flex gap-[16px] items-center relative shrink-0" data-name="Nav">
-      <ExploreButton />
+      {explore}
       <DegreesButton />
     </div>
   );
 }
 
-function Left({ children, className = "" }: { children?: ReactNode; className?: string }) {
+function Left({
+  children,
+  className = "",
+  explore,
+}: {
+  children?: ReactNode;
+  className?: string;
+  explore: ReactNode;
+}) {
   return (
     <div
       className={`content-stretch flex flex-wrap gap-x-[24px] gap-y-3 items-center relative min-w-0 max-w-full ${className}`.trim()}
       data-name="Left"
     >
       <LogoAppSwitcher />
-      <Nav />
+      <Nav explore={explore} />
       {children}
     </div>
   );
@@ -238,16 +240,175 @@ export type AppPageHeaderProps = {
 
 export default function AppPageHeader({ borderBottom = true, className = "", serp }: AppPageHeaderProps) {
   const barBorder = borderBottom ? "border-b border-[var(--cds-color-neutral-stroke-primary-weak,#dae1ed)] border-solid" : "";
+  const headerBarRef = useRef<HTMLDivElement>(null);
+  const exploreButtonRef = useRef<HTMLButtonElement>(null);
+  const exploreMenuRef = useRef<HTMLDivElement>(null);
+  const [exploreMenuOpen, setExploreMenuOpen] = useState(false);
+  const [exploreMenuTopPx, setExploreMenuTopPx] = useState(0);
+  const [exploreMenuBottomPx, setExploreMenuBottomPx] = useState(0);
+  const [exploreMenuEntered, setExploreMenuEntered] = useState(false);
+  /** Fills the header-row gap between the Explore button and the mega menu so pointer path doesn’t leave the hover subtree. */
+  const [exploreHoverBridge, setExploreHoverBridge] = useState({
+    top: 0,
+    height: 0,
+    left: 0,
+    width: 0,
+  });
+
+  /** Opens on Explore hover; stays open while pointer is over the button or mega menu; closes when pointer leaves both. */
+  const handleExploreChromeEnter = useCallback(() => {
+    setExploreMenuOpen(true);
+  }, []);
+
+  const handleExploreChromeLeave = useCallback(() => {
+    setExploreMenuOpen(false);
+  }, []);
+
+  const handleExploreMegaMenuInternalNavigate = useCallback(() => {
+    setExploreMenuOpen(false);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!exploreMenuOpen || !headerBarRef.current) return;
+    const syncTopAndBridge = () => {
+      const menuTop = headerBarRef.current!.getBoundingClientRect().bottom;
+      setExploreMenuTopPx(menuTop);
+      const btn = exploreButtonRef.current;
+      if (!btn) return;
+      const b = btn.getBoundingClientRect();
+      const pad = 40;
+      const left = Math.max(0, b.left - pad);
+      const rawWidth = b.width + pad * 2;
+      const width = Math.min(rawWidth, window.innerWidth - left);
+      setExploreHoverBridge({
+        top: b.bottom,
+        height: Math.max(0, menuTop - b.bottom),
+        left,
+        width,
+      });
+    };
+    syncTopAndBridge();
+    window.addEventListener("resize", syncTopAndBridge);
+    window.addEventListener("scroll", syncTopAndBridge, true);
+    return () => {
+      window.removeEventListener("resize", syncTopAndBridge);
+      window.removeEventListener("scroll", syncTopAndBridge, true);
+    };
+  }, [exploreMenuOpen]);
+
+  useLayoutEffect(() => {
+    if (!exploreMenuOpen || !exploreMenuRef.current) return;
+    const syncBottom = () => setExploreMenuBottomPx(exploreMenuRef.current!.getBoundingClientRect().bottom);
+    syncBottom();
+    const el = exploreMenuRef.current;
+    const ro = new ResizeObserver(syncBottom);
+    ro.observe(el);
+    window.addEventListener("resize", syncBottom);
+    window.addEventListener("scroll", syncBottom, true);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", syncBottom);
+      window.removeEventListener("scroll", syncBottom, true);
+    };
+  }, [exploreMenuOpen, exploreMenuEntered]);
+
+  useEffect(() => {
+    if (!exploreMenuOpen) {
+      setExploreMenuEntered(false);
+      setExploreMenuBottomPx(0);
+      setExploreHoverBridge({ top: 0, height: 0, left: 0, width: 0 });
+      return;
+    }
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setExploreMenuEntered(true));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [exploreMenuOpen]);
+
+  const exploreZone = (
+    <div
+      className="relative z-[60]"
+      onMouseEnter={handleExploreChromeEnter}
+      onMouseLeave={handleExploreChromeLeave}
+    >
+      <button
+        ref={exploreButtonRef}
+        type="button"
+        aria-expanded={exploreMenuOpen}
+        aria-haspopup="true"
+        aria-controls="explore-mega-menu"
+        className={cn(
+          "group flex cursor-pointer items-center gap-1 rounded-[14px] border-0 px-3 py-2 text-left transition-colors",
+          "font-['Source_Sans_3',sans-serif] text-[14px] leading-[20px]",
+          exploreMenuOpen
+            ? "bg-[#f0f5ff] font-semibold text-[#2547a0]"
+            : "bg-transparent font-normal text-[#5b6780] hover:bg-[#f0f5ff] hover:font-semibold hover:text-[#2547a0]",
+        )}
+        data-name="Explore Button"
+      >
+        <span className="leading-[20px]">Explore</span>
+        <div
+          className={cn(
+            "overflow-clip relative shrink-0 size-[16px] text-[#5b6780] group-hover:text-[#4a5568]",
+            exploreMenuOpen && "text-[#4a5568]",
+          )}
+          data-name="direction/ChevronDown"
+          aria-hidden
+        >
+          <div className="absolute inset-[36.46%_26.46%_36.25%_26.51%]" data-name="Vector">
+            <svg className="absolute block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 7.52535 4.36667">
+              <path d={svgPaths.p309a7b80} fill="currentColor" id="Vector" />
+            </svg>
+          </div>
+        </div>
+      </button>
+      {exploreMenuOpen && exploreHoverBridge.height > 0 ? (
+        <div
+          className="fixed z-[49] bg-transparent"
+          style={{
+            top: exploreHoverBridge.top,
+            left: exploreHoverBridge.left,
+            width: exploreHoverBridge.width,
+            height: exploreHoverBridge.height,
+          }}
+          aria-hidden
+        />
+      ) : null}
+      {exploreMenuOpen ? (
+        <ExploreMegaMenu
+          ref={exploreMenuRef}
+          id="explore-mega-menu"
+          menuEntered={exploreMenuEntered}
+          topPx={exploreMenuTopPx}
+          onInternalNavigate={handleExploreMegaMenuInternalNavigate}
+        />
+      ) : null}
+    </div>
+  );
+
   return (
     <div
       className={`relative shrink-0 w-full bg-[var(--cds-color-neutral-background-primary,white)] ${className}`.trim()}
       data-name="Header"
     >
+      {exploreMenuOpen
+        ? createPortal(
+            <div
+              className="pointer-events-none fixed bottom-0 left-0 right-0 z-[38] bg-black/40"
+              style={{
+                top: exploreMenuBottomPx > 0 ? exploreMenuBottomPx : exploreMenuTopPx + 400,
+              }}
+              aria-hidden
+            />,
+            document.body,
+          )
+        : null}
       <div className="flex flex-row items-center size-full">
         <div
+          ref={headerBarRef}
           className={`content-stretch flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-2.5 sm:px-[46px] sm:py-[10px] relative w-full bg-[var(--cds-color-neutral-background-primary,white)] ${serp ? "sm:gap-8" : ""} ${barBorder}`.trim()}
         >
-          <Left className={serp ? "min-w-0 flex-1" : "shrink-0"}>
+          <Left explore={exploreZone} className={serp ? "min-w-0 flex-1" : "shrink-0"}>
             {serp ? (
               <SerpHeaderSearch
                 query={serp.query}

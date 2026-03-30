@@ -1,5 +1,7 @@
 import { CircleHelp } from "lucide-react";
 import type { ReactNode } from "react";
+import courseraPlusLogo from "@/assets/courseraplus.png";
+import { cn } from "@/lib/utils";
 import svgPaths from "@/components/svg/svg-blndo5mrzw";
 
 /** Figma 2109:76875 — Product PDP hero (emphasis background, KIM stats card). */
@@ -9,8 +11,8 @@ export type ProductDetailsHeroProps = {
   title: string;
   subtitle: string;
   courseThumb: string;
-  /** First instructor / org name shown after “Instructors:” */
-  instructorPrimary: string;
+  /** Figma 2109:76898 — single instructor name beside avatar. */
+  instructorName: string;
   matchPercent?: number | null;
   showAiSkillsTag: boolean;
   /** Rating number string e.g. "4.9" */
@@ -36,15 +38,22 @@ function HeroStatColumn({
   secondary,
   primaryUnderline,
   primaryPlain,
+  className,
 }: {
   primary: ReactNode;
   secondary: ReactNode;
   primaryUnderline?: boolean;
   /** Stars row: no default semibold on wrapper */
   primaryPlain?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="flex min-h-px min-w-0 flex-1 flex-col gap-1 border-[#dae1ed] sm:border-r sm:pr-6 last:sm:border-r-0 last:sm:pr-0">
+    <div
+      className={cn(
+        "flex min-h-px min-w-0 flex-1 flex-col gap-1 border-[#dae1ed] sm:border-r sm:pr-6 last:sm:border-r-0 last:sm:pr-0",
+        className,
+      )}
+    >
       <div
         className={`font-['Source_Sans_3',sans-serif] text-[16px] leading-[20px] tracking-[-0.048px] text-[#0f1114] ${
           primaryPlain ? "font-normal" : "font-semibold"
@@ -63,7 +72,7 @@ export function ProductDetailsHero({
   title,
   subtitle,
   courseThumb,
-  instructorPrimary,
+  instructorName,
   matchPercent,
   showAiSkillsTag,
   stars,
@@ -83,7 +92,11 @@ export function ProductDetailsHero({
         <div className="flex items-center py-1.5" data-name="Partner Branding">
           {partnerLogo ? (
             <div className="relative h-6 max-w-[120px] shrink-0">
-              <img alt="" className="h-full max-h-6 w-auto max-w-full object-contain object-left" src={partnerLogo} />
+              <img
+                alt=""
+                className="h-full max-h-6 w-auto max-w-full object-contain object-left"
+                src={partnerLogo}
+              />
             </div>
           ) : (
             <div className="flex h-6 min-w-[48px] items-center justify-center rounded border border-[#e5e7e8] bg-white px-2 font-['Source_Sans_3',sans-serif] text-[11px] font-semibold text-[#5b6780]">
@@ -102,28 +115,26 @@ export function ProductDetailsHero({
           </p>
         ) : null}
 
-        <div className="flex w-full min-w-0 flex-col gap-3 pt-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-3" data-name="Instructors at the header">
-            <div className="flex items-start pr-3">
-              <div className="relative z-[3] -mr-3 size-9 shrink-0 overflow-hidden rounded-full border border-solid border-[#e5e7e8] bg-white p-0.5">
+        <div className="flex w-full min-w-0 flex-col gap-8 pt-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-8">
+          <div
+            className="flex w-fit min-w-0 shrink-0 items-center gap-2"
+            data-name="Instructors at the header"
+            data-node-id="2109:76898"
+          >
+            <div className="flex shrink-0 items-start">
+              <div className="relative size-9 shrink-0 overflow-hidden rounded-full border border-solid border-[#e5e7e8] bg-white p-0.5">
                 <img alt="" src={courseThumb} className="size-full rounded-full object-cover" />
               </div>
-              <div className="relative z-[2] -mr-3 size-9 shrink-0 rounded-full border border-solid border-[#e5e7e8] bg-[#e8ecf4]" aria-hidden />
-              <div className="relative z-[1] size-9 shrink-0 rounded-full border border-solid border-[#e5e7e8] bg-[#dae1ed]" aria-hidden />
             </div>
-            <div className="flex min-w-0 flex-wrap items-center gap-1 font-['Source_Sans_3',sans-serif] text-[16px] leading-[24px] text-[#1f1f1f]">
-              <span>Instructors:</span>
-              <span className="font-normal">{instructorPrimary}</span>
-              <button
-                type="button"
-                className="rounded-lg px-2 py-2 font-['Source_Sans_3',sans-serif] text-[14px] font-bold leading-[20px] tracking-[-0.1px] text-[#0056d2] hover:underline"
-              >
-                +2 more
-              </button>
+            <div className="flex min-w-0 flex-col justify-center">
+              <div className="flex flex-wrap items-center gap-1 font-['Source_Sans_3',sans-serif] text-[16px] font-normal leading-[24px] text-[#1f1f1f]">
+                <span>Instructor:</span>
+                <span>{instructorName}</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-[1_0_0] flex-wrap content-start items-start gap-1 py-1" data-name="Pills">
+          <div className="flex min-w-0 flex-1 flex-wrap content-start items-start gap-1 py-1" data-name="Pills">
             {matchPercent != null ? (
               <div className="flex h-[25px] min-h-[25px] shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#6923de] to-[#3587fc] px-2">
                 <span className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[14px] font-semibold leading-[22px] text-white">
@@ -158,8 +169,15 @@ export function ProductDetailsHero({
           <span className="font-semibold">306,003 already enrolled</span>
           <span className="font-semibold">·</span>
           <span className="font-normal">Included with </span>
-          <span className="font-semibold text-[#0056d2]">Coursera Plus</span>
-          <button type="button" className="font-normal text-[#5b6780] underline decoration-solid">
+          <img
+            alt="Coursera Plus"
+            src={courseraPlusLogo}
+            className="h-[14px] w-auto max-w-[70px] shrink-0 self-center object-contain object-left"
+          />
+          <button
+            type="button"
+            className="font-normal text-[12px] leading-[18px] text-[#5b6780] underline decoration-solid"
+          >
             learn more
           </button>
         </div>
@@ -171,6 +189,7 @@ export function ProductDetailsHero({
       >
         <HeroStatColumn primary={courseCountLabel} secondary={productTypeSub} primaryUnderline />
         <HeroStatColumn
+          className="pl-6"
           primaryPlain
           primary={
             <span className="inline-flex flex-wrap items-center gap-1">
@@ -185,6 +204,7 @@ export function ProductDetailsHero({
           secondary={reviews ? `(${reviews})` : ""}
         />
         <HeroStatColumn
+          className="pl-6"
           primary={`${levelLabel} level`}
           secondary={
             <span className="inline-flex items-center gap-1">
@@ -199,7 +219,7 @@ export function ProductDetailsHero({
             </span>
           }
         />
-        <HeroStatColumn primary="Flexible schedule" secondary={scheduleSub} />
+        <HeroStatColumn className="ml-6" primary="Flexible schedule" secondary={scheduleSub} />
       </div>
     </div>
   );
