@@ -14,7 +14,11 @@ import actionsClose from "../../assets/actions-close.svg";
 import sparkleSvg from "../../assets/sparkle.svg";
 import svgPaths from "../svg/svg-gmzksqch85";
 import { ExploreMegaMenu } from "@/components/layout/ExploreMegaMenu";
-import { IdleAutocompletePanel, TypingAutocompletePanel } from "@/components/search/SearchAutocompletePanels";
+import {
+  AUTOCOMPLETE_DROPDOWN_WIDTH_CLASS,
+  IdleAutocompletePanel,
+  TypingAutocompletePanel,
+} from "@/components/search/SearchAutocompletePanels";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/routes";
 
@@ -115,7 +119,10 @@ function SerpHeaderSearch({
   onAutocompletePick: (q: string) => void;
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownTopPx, setDropdownTopPx] = useState<number | null>(null);
+  const [dropdownLeftPx, setDropdownLeftPx] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -140,9 +147,33 @@ function SerpHeaderSearch({
     return () => document.removeEventListener("pointerdown", onPointerDown, true);
   }, [dropdownOpen]);
 
+  useLayoutEffect(() => {
+    if (!dropdownOpen) {
+      setDropdownTopPx(null);
+      setDropdownLeftPx(null);
+      return;
+    }
+    const updatePosition = () => {
+      const el = formRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setDropdownTopPx(r.bottom + 8);
+      const maxW = Math.min(724, window.innerWidth - 32);
+      setDropdownLeftPx(Math.max(8, Math.min(r.left, window.innerWidth - maxW - 8)));
+    };
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [dropdownOpen]);
+
   return (
-    <div ref={containerRef} className="relative w-full min-w-0 flex-1" data-name="Search Input container">
+    <div ref={containerRef} className="relative w-full min-w-0 flex-1 overflow-visible" data-name="Search Input container">
       <form
+        ref={formRef}
         onSubmit={handleSubmit}
         className="flex w-full min-w-0 items-center justify-between gap-2 overflow-hidden rounded-[24px] border border-solid border-[#dae1ed] bg-white py-1 pl-4 pr-1"
         data-name="Search Input"
@@ -183,10 +214,11 @@ function SerpHeaderSearch({
           <Search className="size-5 shrink-0" strokeWidth={2} aria-hidden />
         </button>
       </form>
-      {dropdownOpen ? (
+      {dropdownOpen && dropdownTopPx != null && dropdownLeftPx != null ? (
         <div
           id={SERP_HEADER_AUTOCOMPLETE_LISTBOX_ID}
-          className="absolute left-0 top-full z-50 mt-2 w-full min-w-0 max-w-[min(1056px,100vw-2rem)] rounded-[24px] border border-[#e8edf4] bg-white p-6 shadow-xl"
+          className={`fixed z-50 ${AUTOCOMPLETE_DROPDOWN_WIDTH_CLASS} rounded-[24px] border border-[#e8edf4] bg-white p-6 shadow-xl`}
+          style={{ top: dropdownTopPx, left: dropdownLeftPx }}
           data-name="SERP header autocomplete"
           aria-label="Search suggestions"
         >
@@ -406,9 +438,9 @@ export default function AppPageHeader({ borderBottom = true, className = "", ser
       <div className="flex flex-row items-center size-full">
         <div
           ref={headerBarRef}
-          className={`content-stretch flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-2.5 sm:px-[46px] sm:py-[10px] relative w-full bg-[var(--cds-color-neutral-background-primary,white)] ${serp ? "sm:gap-8" : ""} ${barBorder}`.trim()}
+          className={`content-stretch flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-2.5 sm:px-[46px] sm:py-[10px] relative w-full overflow-visible bg-[var(--cds-color-neutral-background-primary,white)] ${serp ? "sm:gap-8" : ""} ${barBorder}`.trim()}
         >
-          <Left explore={exploreZone} className={serp ? "min-w-0 flex-1" : "shrink-0"}>
+          <Left explore={exploreZone} className={serp ? "min-w-0 flex-1 overflow-visible" : "shrink-0"}>
             {serp ? (
               <SerpHeaderSearch
                 query={serp.query}

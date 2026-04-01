@@ -2,11 +2,11 @@ import svgPaths from "@/components/svg/svg-gmzksqch85";
 import actionsAdd from "@/assets/actions-add.svg";
 import actionsAudio from "@/assets/actions-audio.svg";
 import aiBg from "@/assets/ai-bg.svg";
-import { type FormEvent, forwardRef, useCallback, useEffect, useRef, useState } from "react";
+import { type FormEvent, forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import {
+  AUTOCOMPLETE_DROPDOWN_WIDTH_CLASS,
   GenAiSparkleBrandIcon,
-  IdleAutocompletePanel,
   LOHP_PROMPT_SUGGESTIONS,
   promptPillHoverClass,
   TypingAutocompletePanel,
@@ -19,8 +19,8 @@ const LOHP_INPUT_BG_TEXTURE =
 
 const ChatComposerTextField = forwardRef<
   HTMLInputElement,
-  { value: string; onChange: (next: string) => void; onFocus?: () => void; ariaExpanded?: boolean }
->(function ChatComposerTextField({ value, onChange, onFocus, ariaExpanded }, ref) {
+  { value: string; onChange: (next: string) => void; onFocus?: () => void; listboxExpanded: boolean }
+>(function ChatComposerTextField({ value, onChange, onFocus, listboxExpanded }, ref) {
   return (
     <div className="flex w-full items-center px-1 py-0" data-name="Text Body">
       <input
@@ -34,8 +34,8 @@ const ChatComposerTextField = forwardRef<
         onFocus={onFocus}
         placeholder="I want to learn..."
         aria-label="I want to learn"
-        aria-expanded={ariaExpanded ?? false}
-        aria-controls={ariaExpanded ? "lohp-autocomplete-dropdown" : undefined}
+        aria-expanded={listboxExpanded}
+        aria-controls={listboxExpanded ? "lohp-autocomplete-dropdown" : undefined}
         autoComplete="off"
         className="h-[32px] w-full min-w-0 flex-1 align-top border-0 bg-transparent p-0 font-['Source_Sans_3',sans-serif] text-[16px] leading-[24px] text-[#0f1114] outline-none placeholder:text-[#5b6780]"
       />
@@ -138,12 +138,17 @@ function PromptSuggestionChip({ label, onSelect }: { label: string; onSelect: (l
   );
 }
 
-/** Hero search composer, autocomplete, and prompt chips — top of the logged-out homepage. */
+/** Hero search composer, typing autocomplete (no idle / zero-state panel), and prompt chips. */
 export function LohpInputSection() {
   const [query, setQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [typingDropdownTopPx, setTypingDropdownTopPx] = useState<number | null>(null);
+  const [typingDropdownLeftPx, setTypingDropdownLeftPx] = useState<number | null>(null);
   const composerContainerRef = useRef<HTMLDivElement>(null);
+  const heroFormRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
+
+  const showTypingDropdown = dropdownOpen && query.trim().length > 0;
 
   const goSearch = useCallback(
     (q: string) => {
@@ -176,6 +181,29 @@ export function LohpInputSection() {
     document.addEventListener("pointerdown", onPointerDown, true);
     return () => document.removeEventListener("pointerdown", onPointerDown, true);
   }, [dropdownOpen]);
+
+  useLayoutEffect(() => {
+    if (!showTypingDropdown) {
+      setTypingDropdownTopPx(null);
+      setTypingDropdownLeftPx(null);
+      return;
+    }
+    const updatePosition = () => {
+      const el = heroFormRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setTypingDropdownTopPx(r.bottom + 8);
+      const maxW = Math.min(724, window.innerWidth - 32);
+      setTypingDropdownLeftPx(Math.max(8, Math.min(r.left, window.innerWidth - maxW - 8)));
+    };
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [showTypingDropdown]);
 
   return (
     <div className="content-stretch relative flex w-full shrink-0 flex-col items-center gap-4 pb-2 pt-10" data-name="Input and Prompts">
@@ -227,28 +255,25 @@ export function LohpInputSection() {
             }}
             data-name="ChatMessageComposer"
           >
-            <form className="flex w-full flex-col gap-1" onSubmit={onSubmit} data-name="LOHP Chat Input">
+            <form ref={heroFormRef} className="flex w-full flex-col gap-1" onSubmit={onSubmit} data-name="LOHP Chat Input">
               <ChatComposerTextField
                 value={query}
                 onChange={setQuery}
                 onFocus={() => setDropdownOpen(true)}
-                ariaExpanded={dropdownOpen}
+                listboxExpanded={showTypingDropdown && typingDropdownTopPx != null}
               />
               <InputActions canSubmit={query.trim().length > 0} />
             </form>
           </div>
-          {dropdownOpen ? (
+          {showTypingDropdown && typingDropdownTopPx != null && typingDropdownLeftPx != null ? (
             <div
               id="lohp-autocomplete-dropdown"
-              className="absolute left-1/2 top-full z-50 mt-2 w-[min(1056px,calc(100vw-3rem))] min-w-0 -translate-x-1/2 rounded-[24px] border border-[#e8edf4] bg-white p-6 shadow-xl"
+              className={`fixed z-50 ${AUTOCOMPLETE_DROPDOWN_WIDTH_CLASS} rounded-[24px] border border-[#e8edf4] bg-white p-6 shadow-xl`}
+              style={{ top: typingDropdownTopPx, left: typingDropdownLeftPx }}
               data-name="LOHP Autocomplete"
               aria-label="Search suggestions"
             >
-              {query.trim().length > 0 ? (
-                <TypingAutocompletePanel query={query} onPick={pickFromDropdown} />
-              ) : (
-                <IdleAutocompletePanel onPick={pickFromDropdown} />
-              )}
+              <TypingAutocompletePanel query={query} onPick={pickFromDropdown} />
             </div>
           ) : null}
         </div>

@@ -20,6 +20,9 @@ const learnerFavoriteCardHoverClass =
 const autocompleteRowHoverClass =
   "rounded-lg transition-colors duration-150 hover:bg-[#f5f8ff]";
 
+/** Shell max width; learner-favorite cards use a 4-col grid so they always share this width (no horizontal scroll). */
+export const AUTOCOMPLETE_DROPDOWN_WIDTH_CLASS = "w-[min(724px,calc(100vw-2rem))] min-w-0";
+
 export const LOHP_PROMPT_SUGGESTIONS = [
   "Create a learning plan",
   "Find a new career",
@@ -83,8 +86,22 @@ const LEARNER_FAVORITE_CARDS = [
   },
 ] as const;
 
-/** CDS Avatar org-style (Figma 2320:48885): 24px tile, inset logo, neutral border — matches SERP product card partner row. */
-function PartnerLogoAvatar({ src }: { src: string }) {
+/** CDS Avatar org-style (Figma 2320:48885): 24px tile, inset logo, neutral border — matches SERP product card partner row. `compact` ≈ ⅔ scale for idle dropdown learner cards. */
+function PartnerLogoAvatar({ src, compact }: { src: string; compact?: boolean }) {
+  if (compact) {
+    return (
+      <div
+        className="relative flex size-4 shrink-0 flex-col items-center justify-center overflow-hidden rounded-[2px] bg-white p-px"
+        data-name="Avatar"
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-[inherit] border-[0.6px] border-solid border-[#dae1ed]"
+        />
+        <img alt="" className="relative size-[9px] object-contain" src={src} />
+      </div>
+    );
+  }
   return (
     <div
       className="relative flex size-6 shrink-0 flex-col items-center justify-center overflow-hidden rounded-[2px] bg-white p-[2px]"
@@ -128,31 +145,33 @@ export function IdleAutocompletePanel({ onPick }: { onPick: (q: string) => void 
           Start with these learner favorites
         </p>
         <div
-          className="-m-6 flex w-[min(1056px,calc(100vw-3rem))] min-w-[min(1056px,calc(100vw-3rem))] shrink-0 gap-2 overflow-x-auto overscroll-x-contain p-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="-m-6 grid w-full min-w-0 grid-cols-4 gap-1.5 p-6"
           data-name="Cards"
         >
           {LEARNER_FAVORITE_CARDS.map((card) => (
             <button
               key={card.title}
               type="button"
-              className={`flex w-[246px] shrink-0 flex-col gap-2 rounded-2xl border border-solid border-[#dae1ed] bg-white p-2 text-left font-inherit ${learnerFavoriteCardHoverClass}`}
+              className={`flex min-h-0 min-w-0 w-full flex-col gap-1.5 rounded-xl border border-solid border-[#dae1ed] bg-white p-1.5 text-left font-inherit ${learnerFavoriteCardHoverClass}`}
               data-name="Card"
               onClick={() => onPick(card.title)}
             >
-              <div className="relative h-[131px] w-full overflow-hidden rounded-lg">
+              <div className="relative aspect-[164/87] w-full min-w-0 overflow-hidden rounded-md">
                 <img alt="" className="size-full object-cover" src={card.image} />
               </div>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-1">
-                  <PartnerLogoAvatar src={googleLogo} />
-                  <span className="font-['Source_Sans_3',sans-serif] text-[14px] font-normal leading-[20px] text-[#5b6780]">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <div className="flex min-w-0 items-center gap-0.5">
+                  <PartnerLogoAvatar src={googleLogo} compact />
+                  <span className="min-w-0 truncate font-['Source_Sans_3',sans-serif] text-[10px] font-normal leading-4 text-[#5b6780]">
                     {card.partner}
                   </span>
                 </div>
-                <p className="font-['Source_Sans_3',sans-serif] text-[16px] font-semibold leading-[20px] tracking-[-0.048px] text-[#0f1114]">
+                <p className="line-clamp-4 min-w-0 break-words font-['Source_Sans_3',sans-serif] text-[11px] font-semibold leading-4 tracking-[-0.03px] text-[#0f1114]">
                   {card.title}
                 </p>
-                <p className="font-['Source_Sans_3',sans-serif] text-[14px] font-normal leading-[20px] text-[#5b6780]">{card.meta}</p>
+                <p className="line-clamp-2 min-w-0 break-words font-['Source_Sans_3',sans-serif] text-[10px] font-normal leading-4 text-[#5b6780]">
+                  {card.meta}
+                </p>
               </div>
             </button>
           ))}
@@ -198,7 +217,7 @@ export function TypingAutocompletePanel({ query, onPick }: { query: string; onPi
             onClick={() => onPick(row.submit)}
           >
             <span className="mt-0.5 shrink-0">
-              <GenAiSparkleBrandIcon sizeClass="size-[14px]" />
+              <NavigationSearchIcon />
             </span>
             <span className="font-['Source_Sans_3',sans-serif] text-[16px] font-normal leading-[20px] tracking-[-0.048px] text-[#0f1114]">
               {row.type === "parts" ? (

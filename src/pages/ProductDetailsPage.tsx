@@ -100,6 +100,16 @@ export default function ProductDetailsPage() {
     [navigate],
   );
 
+  /** Prefer browser history so we return to search, comparison, roles, etc.; fallback if PDP was the first in-app entry. */
+  const goBackFromPdp = useCallback(() => {
+    const idx = (window.history.state as { idx?: number } | null)?.idx;
+    if (typeof idx === "number" && idx > 0) {
+      navigate(-1);
+    } else {
+      navigate(ROUTES.search);
+    }
+  }, [navigate]);
+
   if (!course || !detail) {
     return (
       <div className="min-h-screen w-full bg-white" data-name="Product details — not found">
@@ -181,7 +191,7 @@ export default function ProductDetailsPage() {
           data-name="PDP main"
         >
           <div className="mb-6">
-            <BackLink onClick={() => navigate(ROUTES.search)} aria-label="Back to search results" />
+            <BackLink onClick={goBackFromPdp} aria-label="Back to previous page" />
           </div>
 
           <div className="mb-8 min-w-0 w-full">
