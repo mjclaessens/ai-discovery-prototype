@@ -24,10 +24,6 @@ import { ROUTES } from "@/routes";
 
 const SERP_HEADER_AUTOCOMPLETE_LISTBOX_ID = "serp-header-autocomplete-dropdown";
 
-/** Figma AI-native header — `_genAI_sparkle_brand_test` single asset when AI panel is open (node 2104:63356). MCP URL; refresh from Figma if expired. */
-const IMG_HEADER_GEN_AI_SPARKLE_OPEN =
-  "https://www.figma.com/api/mcp/asset/88cf2fb1-1898-498b-8c92-f8bdb87a4ae0";
-
 /** AI-native Discovery Vision — Header (Figma node 1815:53299 / 1625:33523): logo + Explore + Degrees | Log In + Join for free */
 function LogoAppSwitcher() {
   return (
@@ -102,7 +98,7 @@ function HeaderGenAiSparkleClosed() {
 function HeaderGenAiSparkleOpen() {
   return (
     <div className="relative shrink-0 size-6 overflow-hidden" data-name="_genAI_sparkle_brand_test" aria-hidden>
-      <img alt="" className="absolute inset-[-0.67%_0_0_0] size-full max-w-none object-contain" src={IMG_HEADER_GEN_AI_SPARKLE_OPEN} />
+      <img alt="" className="absolute inset-0 size-full max-w-none object-contain" src={sparkleSvg} />
     </div>
   );
 }

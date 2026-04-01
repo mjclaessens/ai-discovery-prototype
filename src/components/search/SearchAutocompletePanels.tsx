@@ -1,15 +1,10 @@
 import hero1 from "@/assets/hero1.png";
 import hero2 from "@/assets/hero2.png";
 import googleLogo from "@/assets/google-logo.png";
+import sparkleSvg from "@/assets/sparkle.svg";
 import spotlight11 from "@/assets/spotlight1-1.png";
 import spotlight12 from "@/assets/spotlight1-2.png";
 import { useCourseraTypingAutocomplete } from "@/hooks/useCourseraTypingAutocomplete";
-
-/** Figma `_genAI_sparkle_brand_test` (L + S layers; MCP URLs; refresh from Figma if expired). */
-const IMG_GEN_AI_SPARKLE_L =
-  "https://www.figma.com/api/mcp/asset/98b22db9-d94a-4929-8f13-3a3f4fc86762";
-const IMG_GEN_AI_SPARKLE_S =
-  "https://www.figma.com/api/mcp/asset/1bb6409e-be5b-4c21-a011-970c56624c09";
 
 export const promptPillHoverClass =
   "transition-colors duration-150 hover:bg-[#f5f8ff] hover:border-[#c5d2ea]";
@@ -36,16 +31,11 @@ export const LOHP_PROMPT_SUGGESTIONS = [
   "Which career’s right for me?",
 ] as const;
 
-/** Matches Figma `_genAI_sparkle_brand_test` (L + S layers; default 11px). */
+/** GenAI sparkle mark — local SVG (same asset as header); avoids broken Figma MCP asset URLs. */
 export function GenAiSparkleBrandIcon({ sizeClass = "size-[11px]" }: { sizeClass?: string }) {
   return (
     <div className={`relative shrink-0 ${sizeClass}`} data-name="_genAI_sparkle_brand_test" aria-hidden>
-      <div className="absolute inset-[8.33%_8.33%_0_0]" data-name="L">
-        <img alt="" className="block size-full max-w-none" src={IMG_GEN_AI_SPARKLE_L} />
-      </div>
-      <div className="absolute inset-[0_0_66.67%_66.67%]" data-name="S">
-        <img alt="" className="block size-full max-w-none" src={IMG_GEN_AI_SPARKLE_S} />
-      </div>
+      <img alt="" className="block size-full max-w-none object-contain" src={sparkleSvg} />
     </div>
   );
 }

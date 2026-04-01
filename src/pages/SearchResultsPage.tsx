@@ -2151,7 +2151,7 @@ function CompareCourseColumn({
               data-name="Pills"
             >
               <div className="flex h-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#6923de] to-[#3587fc] px-[7px]">
-                <span className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[14px] font-semibold leading-[20px] tracking-[1px] text-white">
+                <span className="whitespace-nowrap font-['Source_Sans_3',sans-serif] text-[14px] font-semibold leading-[20px] tracking-[0px] text-white">
                   {matchPct}% match
                 </span>
               </div>
