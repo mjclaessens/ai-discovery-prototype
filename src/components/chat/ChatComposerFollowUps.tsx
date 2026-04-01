@@ -2,7 +2,7 @@ import actionsClose from "@/assets/actions-close.svg";
 import type { ResolvedSerpCourse } from "@/data/serpCourses";
 
 /**
- * Figma 2163:34106 — selected course chips above the composer.
+ * Figma 2807:45991 — attachment thumbnails (40×40, course image + overlay dismiss only).
  * Shown when the user has confirmed their role and results are in a state where course selection applies:
  * default SERP grid, or personalized results after PM refresh (pm_results).
  */
@@ -15,29 +15,29 @@ export function ComposerSelectedCoursesAttachment({
 }) {
   if (courses.length === 0) return null;
   return (
-    <div className="flex w-full min-w-0 flex-col gap-2" data-name="Composer selected courses">
-      <div className="grid w-full min-w-0 grid-cols-2 gap-2">
-        {courses.map((c) => (
-          <div
-            key={c.id}
-            className="flex h-[26px] min-h-[26px] max-h-[26px] min-w-0 w-full items-center gap-1 rounded-md border border-[#dae1ed] bg-white px-0.5 py-[3px]"
-            data-name="Selected course chip"
+    <div className="flex w-full min-w-0 flex-wrap gap-1" data-name="Composer selected courses">
+      {courses.map((c) => (
+        <div
+          key={c.id}
+          className="relative shrink-0 size-10 overflow-hidden rounded-lg"
+          data-name="Selected course chip"
+        >
+          <img alt="" className="size-full rounded-lg object-cover" src={c.thumb} />
+          <button
+            type="button"
+            className="absolute right-1 top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-[rgba(45,52,64,0.8)] p-0.5 transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
+            aria-label={`Remove ${c.title}`}
+            onClick={() => onRemove(c.id)}
           >
-            <img alt="" className="size-[22px] shrink-0 rounded-[6px] object-cover" src={c.thumb} />
-            <p className="min-w-0 flex-1 truncate font-['Source_Sans_3',sans-serif] text-[11px] leading-[22px] text-[#0f1114]">
-              {c.title}
-            </p>
-            <button
-              type="button"
-              className="flex size-[22px] shrink-0 cursor-pointer items-center justify-center rounded text-[#5b6780] transition-colors hover:bg-[#f2f5fa] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0056d2]"
-              aria-label={`Remove ${c.title}`}
-              onClick={() => onRemove(c.id)}
-            >
-              <img alt="" className="size-3 object-contain opacity-70" src={actionsClose} aria-hidden />
-            </button>
-          </div>
-        ))}
-      </div>
+            <img
+              alt=""
+              className="size-[10px] object-contain brightness-0 invert"
+              src={actionsClose}
+              aria-hidden
+            />
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
